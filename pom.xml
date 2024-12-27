@@ -65,6 +65,8 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+<!--			<version>1.18.30</version> -->
+<!--			<scope>provided</scope>-->
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -84,6 +86,12 @@
 			<artifactId>jbcrypt</artifactId>
 			<version>0.4</version>
 		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>io.projectreactor.netty</groupId>-->
+<!--			<artifactId>reactor-netty</artifactId>-->
+<!--			<version>1.1.9</version> 		&lt;!&ndash; Spring Boot 3.3.7에 호환되는 최신 버전 &ndash;&gt;-->
+<!--		</dependency>-->
 
 	</dependencies>
 
