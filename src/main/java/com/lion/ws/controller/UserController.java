@@ -91,7 +91,7 @@ public class UserController {
             session.setAttribute("sessUname", user.getUname());
             session.setMaxInactiveInterval(4 * 60 * 60);        // 세션 타임아웃 시간: 4시간
             msg = user.getUname() + "님 환영합니다.";
-            url = "/mall/list";
+            url = "/stomp/personal";
         } else if (result == UserService.WRONG_PASSWORD) {
             msg = "패스워드가 틀렸습니다.";
             url = "/user/login";

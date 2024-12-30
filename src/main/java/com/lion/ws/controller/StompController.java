@@ -31,8 +31,13 @@ public class StompController {
 
     @MessageMapping("/personal")        // 클라이언트가 /app/personal로 메세지를 보냄
     public void processMessage(PersonalMessage message) {
-//        return "Message from: " + message.getSender() + ", Content: " + message.getContent();
-        messageService.sendMessages(message.getRecipient(), message.getContent());
+        System.out.println(message);
+        try {
+            messageService.sendMessages(message);
+//            System.out.println("Message sent to recipient: " + message.getRecipient());
+        } catch (Exception e) {
+            System.err.println("Error while sending message: " + e.getMessage());
+        }
     }
 
     @GetMapping("/stomp/personal")

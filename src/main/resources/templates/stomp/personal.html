@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>STOMP Echo</title>
+    <title>STOMP Personal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script>
@@ -18,25 +18,31 @@
             stompClient.connect({}, function (frame) {
                 console.log('Connected: ' + frame);
 
-                // Subscribe to /queue/userId
+                // Subscribe to /queue/{userId}
                 stompClient.subscribe('/queue/' + userId, function (message) {
                     showMessage(message.body);
                 });
             });
         }
 
-        // Send a message to /app/echo
+        // Send a message to /app/personal
         function sendMessage() {
             recipientId = document.getElementById('recipientId').value;
             const message = document.getElementById('messageInput').value;
             const personalMessage = { sender: userId, recipient: recipientId, content: message };
-            stompClient.send("/app/send", {}, JSON.stringify(personalMessage));
+            stompClient.send("/app/personal", {}, JSON.stringify(personalMessage));
         }
 
         // Display received message
         function showMessage(message) {
-            const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML += `${message}\n`;
+            try {
+                const parsedMessage = JSON.parse(message);
+                console.log("Parsed message: ", parsedMessage);
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML += `[${parsedMessage.sender}] ${parsedMessage.content}\n`;
+            } catch (error) {
+                console.error("Error parsing message: ", error);
+            }
         }
 
         function disconnect() {
@@ -55,7 +61,7 @@
     </style>
 </head>
 <body style="margin: 40px;">
-    <h1>STOMP Echo v2</h1>
+    <h1>STOMP Personal</h1>
     <input type="hidden" id="userId" th:value="${session.sessUid}">
     <p>Status:
         <span id="status">연결하세요.</span>
