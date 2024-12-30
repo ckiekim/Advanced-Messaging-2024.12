@@ -19,13 +19,12 @@ public class GroupRoomService {
         return room;
     }
 
-    // 단톡방 목록 조회
-    public  Map<String, GroupRoom> findAllRooms() {
-        return groupRooms;
-    }
-
     // 특정 채팅방 조회
-    public GroupRoom findRoomById(String roomId) {
-        return groupRooms.get(roomId);
+    public GroupRoom findRoomByName(String roomName) {
+        for (String key: groupRooms.keySet()) {
+            if (groupRooms.get(key).getRoomName().equals(roomName))
+                return groupRooms.get(key);
+        }
+        return null;
     }
 }
