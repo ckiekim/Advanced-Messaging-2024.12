@@ -48,4 +48,12 @@ public class ChatUser {
     public int hashCode() {
         return Objects.hash(chatRoom.hashCode(), user.hashCode());
     }
+
+    @Override
+    public String toString() {
+        return "ChatUser{" +
+                "id=" + id +
+                ", joinedAt=" + joinedAt +
+                '}';
+    }
 }

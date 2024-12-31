@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatter List</title>
+    <style>
+        td, th, input, button { padding: 3px; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <h1>Chatter List</h1>
+    <img th:src="${user.profileUrl}" th:alt="${user.uname}" width="48" style="border-radius: 30%; text-align: center;">
+    <p>uname: [[${user.uname}]]</p>
+    <table border="1">
+        <tr>
+            <th>RoomId</th>
+            <th>Profile</th>
+            <th>RoomName</th>
+            <th>Message</th>
+            <th>Timestamp</th>
+            <th>Unread</th>
+        </tr>
+        <tr th:each="chatter: ${chatterList}">
+            <td th:text="${chatter.roomId}"></td>
+            <td><img th:src="${chatter.roomProfile}" th:alt="${chatter.roomName}" width="32" style="border-radius: 50%;"></td>
+            <td th:text="${chatter.roomName}"></td>
+            <td th:text="${chatter.message}"></td>
+            <td th:text="${chatter.timeStr}"></td>
+            <td th:text="${chatter.unreadCount}"></td>
+        </tr>
+    </table>
+</body>
+</html>

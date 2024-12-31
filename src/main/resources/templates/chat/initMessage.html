@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mock ChatMessage Insert</title>
+    <style>
+        input, button { padding: 3px; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <h1>채팅메세지 등록</h1>
+    <form action="/chat/initMessage" method="post">
+        <input type="text" name="senderName" placeholder="Sender의 UID"><br><br>
+        <input type="text" name="roomId" placeholder="Room의 아이디"><br><br>
+        <input type="text" name="message" placeholder="전송할 메세지"><br><br>
+        <button type="submit">확인</button>
+    </form>
+</body>
+</html>
