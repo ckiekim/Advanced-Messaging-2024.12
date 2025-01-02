@@ -6,6 +6,7 @@ import com.lion.ws.util.ChatUtil;
 import com.lion.ws.util.TimeUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,12 +32,20 @@ public class ChatController {
     public String home(HttpSession session, Model model) {
         String uid = (String) session.getAttribute("sessUid");
         User user = userService.findByUid(uid);
-        List<Chatter> chatterList = chatterService.getChatterList(user);
+//        List<Chatter> chatterList = chatterService.getChatterList(user);
 
         session.setAttribute("menu", "chat");
-        model.addAttribute("chatterList", chatterList);
+//        model.addAttribute("chatterList", chatterList);
         model.addAttribute("user", user);
         return "chat/home";
+    }
+
+    @GetMapping("/getChatterList")
+    @ResponseBody
+    public ResponseEntity<List<Chatter>> getChatterList(@RequestParam String userId) {
+        User user = userService.findByUid(userId);
+        List<Chatter> chatterList = chatterService.getChatterList(user);
+        return ResponseEntity.ok(chatterList);
     }
 
     @GetMapping("/each/{roomId}")

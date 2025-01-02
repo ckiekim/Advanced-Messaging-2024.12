@@ -3,14 +3,6 @@
 <head>
   <header th:replace="~{fragments/base :: head}"></header>
   <link href="/css/chatHome.css" rel="stylesheet">
-  <script src="/js/chatHome.js"></script>
-  <script>
-    window.onload = () => {
-      // connect();
-      fetchChatterList();
-      // handlePopover();
-    }
-  </script>
 </head>
 <body>
   <div th:insert="~{fragments/base :: top}"></div>
@@ -30,9 +22,6 @@
             <div class="col-3"></div>
             <div class="col-6">
               <input type="hidden" id="userId" th:value="${session.sessUid}">
-              <!-- <input type="hidden" id="chattingStatus" th:value="${session.chattingStatus}">
-              <input type="hidden" id="serverPort" th:value="${session.serverPort}">
-              <input type="hidden" id="serverIp" th:value="${session.serverIp}"> -->
               <table class="table">
                 <thead>
                   <tr>
@@ -53,8 +42,26 @@
                   </tr>
                 </thead>
 
-                <!-- Chatter List가 동적으로 바뀜 -->
                 <tbody>
+                  <tr th:each="chatter: ${chatterList}">
+                    <td style="text-align: center;">
+                      <img th:src="${chatter.roomProfile}" th:alt="${chatter.roomName}" width="40" style="border-radius: 50%; text-align: center;">
+                    </td>
+                    <td>
+                      <a th:href="@{/chat/each/{id}(id=${chatter.roomId})}">
+                        <span style="font-weight: bold; font-size: 0.8rem">[[${chatter.roomName}]]</span>
+                      </a><br>
+                      <span style="font-size: 0.8rem;">[[${chatter.message}]]</span>
+                    </td>
+                    <td style="text-align: center;">
+                      <span style="font-size: 0.8rem;">
+                        [[${chatter.timeStr}]]
+                        <span th:if="${chatter.newCount > 0}">
+                          <br><span class="new-count">[[${chatter.newCount}]]</span>
+                        </span>
+                      </span>
+                    </td>
+                  </tr>
                 </tbody>
 
               </table>
