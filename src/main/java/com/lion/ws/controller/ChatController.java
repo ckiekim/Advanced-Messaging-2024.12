@@ -1,10 +1,8 @@
 package com.lion.ws.controller;
 
 import com.lion.ws.entity.*;
-import com.lion.ws.service.ChatMessageService;
-import com.lion.ws.service.ChatRoomService;
-import com.lion.ws.service.ChatUserService;
-import com.lion.ws.service.UserService;
+import com.lion.ws.service.*;
+import com.lion.ws.util.ChatUtil;
 import com.lion.ws.util.TimeUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -25,9 +22,21 @@ public class ChatController {
     @Autowired private ChatMessageService chatMessageService;
     @Autowired private ChatRoomService chatRoomService;
     @Autowired private ChatUserService chatUserService;
+    @Autowired private ChatterService chatterService;
     @Autowired private UserService userService;
+    @Autowired private ChatUtil chatUtil;
     @Autowired private TimeUtil timeUtil;
 
+    @GetMapping("/home")
+    public String home(HttpSession session, Model model) {
+        String uid = (String) session.getAttribute("sessUid");
+        User user = userService.findByUid(uid);
+        List<Chatter> chatterList = chatterService.getChatterList(uid);
+
+        model.addAttribute("chatterList", chatterList);
+        model.addAttribute("user", user);
+        return "chat/home";
+    }
 
     @GetMapping("/initRoom")
     public String initRoomForm() {
@@ -95,38 +104,42 @@ public class ChatController {
 
     @GetMapping("/chatter/{uid}")
     public String messageByUser(@PathVariable String uid, Model model) {
-        List<ChatUser> chatUsers = chatUserService.findByUserUid(uid);
-        List<Chatter> chatterList = new ArrayList<>();
-        for (ChatUser chatUser: chatUsers) {
-            ChatRoom chatRoom = chatUser.getChatRoom();
-            long chatRoomId = chatRoom.getId();
-            String profile = "/img/people.png";
-            String roomName = "";
-            if (chatRoom.getMembers().size() == 2) {
-                for (ChatUser member: chatRoom.getMembers()) {
-                    if (member.getUser().getUid().equals(uid))
-                        continue;
-                    profile = member.getUser().getProfileUrl();
-                    roomName = member.getUser().getUname();
-                }
-            } else {
-                roomName = chatRoom.getMembers().stream()
-                        .map(cu -> cu.getUser().getUname())
-                        .collect(Collectors.joining(", "));
-            }
-            ChatMessage chatMessage = chatMessageService.getLastMessage(chatRoomId);
-            Chatter chatter = Chatter.builder()
-                    .roomId(chatRoomId)
-                    .roomName(roomName)       // 추후 수정
-                    .roomProfile(profile)
-                    .message(chatMessage.getMessage())
-                    .timeStr(timeUtil.timeAgo(chatMessage.getTimestamp()))
-                    .unreadCount(chatMessage.getUnreadCount())
-                    .build();
-            chatterList.add(chatter);
-        }
+        List<Chatter> chatterList = chatterService.getChatterList(uid);
         model.addAttribute("user", userService.findByUid(uid));
         model.addAttribute("chatterList", chatterList);
         return "chat/chatter";
+    }
+
+    @GetMapping("/room/{roomId}")
+    public String messagesByRoom(@PathVariable long roomId, HttpSession session, Model model) {
+        String uid = (String) session.getAttribute("sessUid");
+        ChatRoom chatRoom = chatRoomService.findById(roomId);
+        String roomName = chatUtil.getRoomName(uid, chatRoom);
+        String roomProfile = chatUtil.getProfileUrl(uid, chatRoom);
+        Map<String, List<ChatMessage>> map = chatMessageService.getChatMessagesByDate(roomId);
+
+        Map<String, List<ChatItem>> chatItemsByDate = new LinkedHashMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (E)", Locale.KOREAN);
+        for (String key: map.keySet()) {
+            List<ChatItem> ciList = new ArrayList<>();
+            for (ChatMessage cm: map.get(key)) {
+                ChatItem chatItem = ChatItem.builder()
+                        .isMine(cm.getSender().getUid().equals(uid) ? 1 : 0)
+                        .message(cm.getMessage())
+                        .timeStr(timeUtil.amPmStr(cm.getTimestamp()))
+                        .senderName(cm.getSender().getUname())
+                        .senderProfile(cm.getSender().getProfileUrl())
+                        .unreadCount(cm.getUnreadCount())
+                        .build();
+                ciList.add(chatItem);
+            }
+            String date = LocalDate.parse(key).format(formatter);
+            chatItemsByDate.put(date, ciList);
+        }
+
+        model.addAttribute("roomName", roomName);
+        model.addAttribute("roomProfile", roomProfile);
+        model.addAttribute("chatItemsByDate", chatItemsByDate);
+        return "chat/room";
     }
 }
