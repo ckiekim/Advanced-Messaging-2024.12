@@ -1,9 +1,6 @@
 package com.lion.ws.service;
 
-import com.lion.ws.entity.ChatMessage;
-import com.lion.ws.entity.ChatRoom;
-import com.lion.ws.entity.ChatUser;
-import com.lion.ws.entity.Chatter;
+import com.lion.ws.entity.*;
 import com.lion.ws.util.ChatUtil;
 import com.lion.ws.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +16,8 @@ public class ChatterService {
     @Autowired private ChatUtil chatUtil;
     @Autowired private TimeUtil timeUtil;
 
-    public List<Chatter> getChatterList(String uid) {
+    public List<Chatter> getChatterList(User user) {
+        String uid = user.getUid();
         List<ChatUser> chatUsers = chatUserService.findByUserUid(uid);
         List<Chatter> chatterList = new ArrayList<>();
         for (ChatUser chatUser: chatUsers) {
@@ -27,15 +25,16 @@ public class ChatterService {
             long chatRoomId = chatRoom.getId();
             String roomName = chatUtil.getRoomName(uid, chatRoom);
             String profile = chatUtil.getProfileUrl(uid, chatRoom);
+            int newCount = chatMessageService.getNewCount(chatRoomId, user);
 
             ChatMessage chatMessage = chatMessageService.getLastMessage(chatRoomId);
             Chatter chatter = Chatter.builder()
                     .roomId(chatRoomId)
-                    .roomName(roomName)       // 추후 수정
+                    .roomName(roomName)
                     .roomProfile(profile)
                     .message(chatMessage.getMessage())
                     .timeStr(timeUtil.timeAgo(chatMessage.getTimestamp()))
-                    .unreadCount(chatMessage.getUnreadCount())
+                    .newCount(newCount)
                     .build();
             chatterList.add(chatter);
         }

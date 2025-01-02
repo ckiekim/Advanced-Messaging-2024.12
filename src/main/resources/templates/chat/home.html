@@ -60,7 +60,7 @@
                       <img th:src="${chatter.roomProfile}" th:alt="${chatter.roomName}" width="40" style="border-radius: 50%; text-align: center;">
                     </td>
                     <td>
-                      <a th:href="@{/chat/room/{id}(id=${chatter.roomId})}">
+                      <a th:href="@{/chat/each/{id}(id=${chatter.roomId})}">
                         <span style="font-weight: bold; font-size: 0.8rem">[[${chatter.roomName}]]</span>
                       </a><br>
                       <span style="font-size: 0.8rem;">[[${chatter.message}]]</span>
@@ -68,8 +68,8 @@
                     <td style="text-align: center;">
                       <span style="font-size: 0.8rem;">
                         [[${chatter.timeStr}]]
-                        <span th:if="${chatter.unreadCount > 0}">
-                          <br><span class="new-count">[[${chatter.unreadCount}]]</span>
+                        <span th:if="${chatter.newCount > 0}">
+                          <br><span class="new-count">[[${chatter.newCount}]]</span>
                         </span>
                       </span>
                     </td>

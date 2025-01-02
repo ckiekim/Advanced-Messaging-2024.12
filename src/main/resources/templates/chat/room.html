@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatter List</title>
+    <style>
+        td, th, input, button { padding: 3px; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <h1>Chatter List</h1>
+    <img th:src="${roomProfile}" th:alt="${roomName}" width="48" style="border-radius: 30%; text-align: center;">
+    <p>room name: [[${roomName}]]</p>
+    <table border="1">
+        <tr>
+            <th>isMine</th>
+            <th>senderProfile</th>
+            <th>senderName</th>
+            <th>Message</th>
+            <th>Timestamp</th>
+            <th>Unread</th>
+        </tr>
+        <div th:each="entry: ${chatItemsByDate}">
+            <tr>
+                <td colspan="6" style="text-align: center;">[[${entry.key}]]</td>
+            </tr>
+            <tr th:each="chatItem: ${entry.value}">
+                <td th:text="${chatItem.isMine}"></td>
+                <td><img th:src="${chatItem.senderProfile}" th:alt="${chatItem.senderName}" width="32" style="border-radius: 50%;"></td>
+                <td th:text="${chatItem.senderName}"></td>
+                <td th:text="${chatItem.message}"></td>
+                <td th:text="${chatItem.timeStr}"></td>
+                <td th:text="${chatItem.unreadCount}"></td>
+            </tr>
+        </div>
+
+    </table>
+</body>
+</html>

@@ -31,11 +31,25 @@ public class ChatController {
     public String home(HttpSession session, Model model) {
         String uid = (String) session.getAttribute("sessUid");
         User user = userService.findByUid(uid);
-        List<Chatter> chatterList = chatterService.getChatterList(uid);
+        List<Chatter> chatterList = chatterService.getChatterList(user);
 
+        session.setAttribute("menu", "chat");
         model.addAttribute("chatterList", chatterList);
         model.addAttribute("user", user);
         return "chat/home";
+    }
+
+    @GetMapping("/each/{roomId}")
+    public String each(@PathVariable long roomId, HttpSession session, Model model) {
+        String uid = (String) session.getAttribute("sessUid");
+        User user = userService.findByUid(uid);
+        ChatRoom chatRoom = chatRoomService.findById(roomId);
+        String roomName = chatUtil.getRoomName(uid, chatRoom);
+        Map<String, List<ChatItem>> chatItemsByDate = chatMessageService.getChatItemsByDate(roomId, user);
+
+        model.addAttribute("roomName", roomName);
+        model.addAttribute("chatItemsByDate", chatItemsByDate);
+        return "chat/each";
     }
 
     @GetMapping("/initRoom")
@@ -104,8 +118,9 @@ public class ChatController {
 
     @GetMapping("/chatter/{uid}")
     public String messageByUser(@PathVariable String uid, Model model) {
-        List<Chatter> chatterList = chatterService.getChatterList(uid);
-        model.addAttribute("user", userService.findByUid(uid));
+        User user = userService.findByUid(uid);
+        List<Chatter> chatterList = chatterService.getChatterList(user);
+        model.addAttribute("user", user);
         model.addAttribute("chatterList", chatterList);
         return "chat/chatter";
     }

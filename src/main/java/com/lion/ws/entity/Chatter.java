@@ -15,5 +15,5 @@ public class Chatter {
     private String roomProfile;
     private String message;
     private String timeStr;
-    private int unreadCount;
+    private int newCount;
 }

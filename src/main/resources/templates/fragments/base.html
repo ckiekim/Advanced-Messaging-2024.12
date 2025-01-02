@@ -26,10 +26,7 @@
           <ul class="navbar-nav">
             <a class="navbar-brand mx-5" href="#"><img src="/img/ck-logo.png" height="36"></a>
             <li class="nav-item ms-3">
-              <a class="nav-link" th:classappend="${session.menu eq 'chatting' ? 'active' : ''}" href="/chatting/home"><i class="fa-solid fa-comments"></i> 채팅</a>
-            </li>
-            <li class="nav-item ms-3">
-              <a class="nav-link" th:classappend="${session.menu eq 'mall' ? 'active' : ''}" href="/mall/list"><i class="fa-solid fa-basket-shopping"></i> 쇼핑</a>
+              <a class="nav-link" th:classappend="${session.menu eq 'chat' ? 'active' : ''}" href="/chat/home"><i class="fa-solid fa-comments"></i> 채팅</a>
             </li>
             <li class="nav-item ms-3">
               <a class="nav-link" th:classappend="${session.menu eq 'user' ? 'active' : ''}" href="/user/list"><i class="fas fa-user-friends"></i> 사용자</a>
