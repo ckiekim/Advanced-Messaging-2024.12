@@ -54,11 +54,22 @@ public class ChatController {
         User user = userService.findByUid(uid);
         ChatRoom chatRoom = chatRoomService.findById(roomId);
         String roomName = chatUtil.getRoomName(uid, chatRoom);
-        Map<String, List<ChatItem>> chatItemsByDate = chatMessageService.getChatItemsByDate(roomId, user);
+//        Map<String, List<ChatItem>> chatItemsByDate = chatMessageService.getChatItemsByDate(roomId, user);
 
+        model.addAttribute("user", user);
+        model.addAttribute("roomId", roomId);
         model.addAttribute("roomName", roomName);
-        model.addAttribute("chatItemsByDate", chatItemsByDate);
+//        model.addAttribute("chatItemsByDate", chatItemsByDate);
         return "chat/each";
+    }
+
+    @GetMapping("/getChatItems")
+    @ResponseBody
+    public ResponseEntity<Map<String, List<ChatItem>>> getChatItems(@RequestParam String userId, @RequestParam long roomId) {
+        User user = userService.findByUid(userId);
+        ChatRoom chatRoom = chatRoomService.findById(roomId);
+        Map<String, List<ChatItem>> chatItemsByDate = chatMessageService.getChatItemsByDate(roomId, user);
+        return ResponseEntity.ok(chatItemsByDate);
     }
 
     @GetMapping("/initRoom")

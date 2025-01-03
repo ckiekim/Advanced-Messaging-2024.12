@@ -3,20 +3,14 @@
 <head>
   <header th:replace="~{fragments/base :: head}"></header>
   <link href="/css/chatEach.css" rel="stylesheet">
-  <!-- <script src="/js/chatEach.js"></script> -->
+  <script src="/js/chatEach.js"></script>
   <script>
     window.onload = () => {
       // connect();
-      // fetchChatItems();
+      fetchChatItems();
       // setTimeout(() => {
       //   sendSignal();
       // }, 100);
-      // handlePopover();
-      const chatContainer = document.getElementById("chatContainer");
-      chatContainer.scrollTop = chatContainer.scrollHeight;     // 스크롤을 가장 아래로 내리기
-    }
-    function handleEnterKey() {
-      
     }
   </script>
 </head>
@@ -43,9 +37,9 @@
                   <div>
                     <a href="/chat/home"><i class="fa-solid fa-arrow-left mx-2" style="color: white;"></i></a>
                     <span style="font-weight: bold;" th:text="${roomName}">마리아</span>
-                    <!-- <input type="hidden" id="recipientId" th:value="${friend.uid}"> -->
-                    <!-- <input type="hidden" id="userId" th:value="${user.uid}">
-                    <input type="hidden" id="chattingStatus" th:value="|chat:${friend.uid}|">
+                    <input type="hidden" id="roomId" th:value="${roomId}">
+                    <input type="hidden" id="userId" th:value="${user.uid}">
+                    <!-- <input type="hidden" id="chattingStatus" th:value="|chat:${friend.uid}|">
                     <input type="hidden" id="serverPort" th:value="${session.serverPort}">
                     <input type="hidden" id="serverIp" th:value="${session.serverIp}"> -->
                   </div>
@@ -58,40 +52,6 @@
 
                 <!-- Chat Container가 동적으로 바뀜 -->
                 <div class="chat-container" id="chatContainer">
-                  <div th:each="entry: ${chatItemsByDate}">
-                    <div class="text-center mt-2 mb-3" style="font-size: 0.7rem; background-color: lightgrey;">
-                      [[${entry.key}]]
-                    </div>
-                    <div th:each="chatItem: ${entry.value}">
-                      <div th:if="${chatItem.isMine == 0}">
-                        <div>
-                          <img th:src="${chatItem.senderProfile}" th:alt="${chatItem.senderName}" width="28" style="border-radius: 30%">
-                          <span style="font-size: 0.6rem;">[[${chatItem.senderName}]]</span>
-                        </div>
-                        <div class="message received">
-                          <p>[[${chatItem.message}]]</p>
-                          <span style="font-size: 0.6rem;">
-                            [[${chatItem.timeStr}]]
-                            <span th:if="${chatItem.unreadCount != 0}">
-                              <span class="read-status">[[${chatItem.unreadCount}]]</span>
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                      <div th:if="${chatItem.isMine == 1}">
-                        <div class="message sent">
-                          <span style="font-size: 0.6rem; margin-right: 3px;">
-                            <span th:if="${chatItem.unreadCount != 0}">
-                              <span class="read-status">[[${chatItem.unreadCount}]]</span>
-                            </span>
-                            [[${chatItem.timeStr}]]
-                          </span>
-                          <p>[[${chatItem.message}]]</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <input class="form-control mt-2" type="text" id="messageInput" placeholder="메시지 입력" onkeypress="handleEnterKey()">
                 </div>
 
               </div>
