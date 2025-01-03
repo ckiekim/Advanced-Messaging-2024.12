@@ -8,10 +8,10 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, frame => {
         // console.log('Connected:', frame);
+        $('#statusIcon').css({color: 'orange', fontWeight: 'bold'});
         stompClient.subscribe('/topic/' + roomId, message => {
             showMessage(message.body);
         });
-        sendSignal();
     });
 }
 
@@ -24,7 +24,7 @@ function sendMessage() {
 
 function showMessage(message) {
     const parsedMessage = JSON.parse(message);
-    console.log("Parsed message: ", parsedMessage);
+    // console.log("Parsed message: ", parsedMessage);
     setTimeout(async () => {
         await fetchChatItems();
         if (parsedMessage.content !== 'OK_SIGNAL')
@@ -44,7 +44,6 @@ async function fetchChatItems() {
             setTimeout(async () => {
                 const chatItemsByDate = await response.json();
                 updateChatContainer(chatItemsByDate);
-                // sendSignal();
             }, 100);
         } 
     } catch (error) {

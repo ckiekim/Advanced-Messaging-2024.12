@@ -32,8 +32,8 @@ public class ChatterService {
                     .roomId(chatRoomId)
                     .roomName(roomName)
                     .roomProfile(profile)
-                    .message(chatMessage.getMessage())
-                    .timeStr(timeUtil.timeAgo(chatMessage.getTimestamp()))
+                    .message(chatMessage != null ? chatMessage.getMessage() : "")
+                    .timeStr(chatMessage != null ? timeUtil.timeAgo(chatMessage.getTimestamp()) : "")
                     .newCount(newCount)
                     .build();
             chatterList.add(chatter);

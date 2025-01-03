@@ -75,6 +75,34 @@ public class ChatController {
         return ResponseEntity.ok(chatItemsByDate);
     }
 
+    @PostMapping("/createChatRoom")
+    @ResponseBody
+    public String createChatRoom(String memberId, HttpSession session) {
+        String uid = (String) session.getAttribute("sessUid");
+        User owner = userService.findByUid(uid);
+        String names[] = memberId.split(",");
+        String roomName = names.length == 1 ? "personal" : "group";
+        ChatRoom chatRoom = ChatRoom.builder()
+                .name(roomName).owner(owner).timestamp(LocalDateTime.now())
+                .build();
+
+        Set<ChatUser> members = new HashSet<>();
+        ChatUser chatUser = ChatUser.builder()
+                .chatRoom(chatRoom).user(owner).joinedAt(LocalDateTime.now())
+                .build();
+        members.add(chatUser);
+        for (String name: names) {
+            User user = userService.findByUid(name.strip());
+            chatUser = ChatUser.builder()
+                    .chatRoom(chatRoom).user(user).joinedAt(LocalDateTime.now())
+                    .build();
+            members.add(chatUser);
+        }
+        chatRoom.setMembers(members);
+        chatRoomService.insertChatRoom(chatRoom);
+        return "";
+    }
+
     @GetMapping("/initRoom")
     public String initRoomForm() {
         return "chat/initRoom";

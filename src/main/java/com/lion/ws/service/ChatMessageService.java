@@ -26,7 +26,8 @@ public class ChatMessageService {
     }
 
     public ChatMessage getLastMessage(long roomId) {
-        return chatMessageRepository.findByChatRoomIdOrderByTimestampDesc(roomId).get(0);
+        List<ChatMessage> cmList = chatMessageRepository.findByChatRoomIdOrderByTimestampDesc(roomId);
+        return cmList.size() >= 1 ? cmList.get(0) : null;
     }
 
     public int getNewCount(long roomId, User user) {

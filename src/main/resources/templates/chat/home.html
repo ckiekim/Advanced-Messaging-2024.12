@@ -10,7 +10,7 @@
     window.onload = () => {
       connect();
       fetchChatterList();
-      // handlePopover();
+      handlePopover();
     }
   </script>
 </head>
@@ -72,7 +72,7 @@
     <div id="mypopover-content">
       <div class="row" style="vertical-align: middle;">
         <div class="col-7">
-          <input type="text" id="friendUid" class="form-control  form-control-sm" placeholder="친구 ID">
+          <input type="text" id="memberId" class="form-control  form-control-sm" placeholder="멤버 ID를 ,로 구분">
         </div>
         <div class="col-5">
           <a href="#" id="addRoomButton"><span class="badge bg-primary">추가</span></a>
