@@ -1,3 +1,29 @@
+let stompClient = null, socket = null;
+let userId = null;
+
+function connect() {
+    userId = $('#userId').val();
+    const roomListStr = $('#roomListStr').val();
+    const roomIds = roomListStr.split(',');
+    socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, frame => {
+        console.log('Connected:', frame);
+        for (let roomId of roomIds) {
+            stompClient.subscribe('/topic/' + roomId, message => {
+                showMessage(message.body);
+            });
+        }
+    });
+}
+
+function showMessage(message) {
+    // console.log("Parsed message: ", JSON.parse(message));
+    setTimeout(async () => {
+        await fetchChatterList();
+    }, 100);
+}
+
 async function fetchChatterList() {
     const userId = $('#userId').val();
     try {

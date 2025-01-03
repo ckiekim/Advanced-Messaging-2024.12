@@ -32,10 +32,13 @@ public class ChatController {
     public String home(HttpSession session, Model model) {
         String uid = (String) session.getAttribute("sessUid");
         User user = userService.findByUid(uid);
-//        List<Chatter> chatterList = chatterService.getChatterList(user);
+        List<Chatter> chatterList = chatterService.getChatterList(user);
+        String roomListStr = chatterList.stream()
+                .map(chatter -> String.valueOf(chatter.getRoomId()))
+                .collect(Collectors.joining(","));
 
         session.setAttribute("menu", "chat");
-//        model.addAttribute("chatterList", chatterList);
+        model.addAttribute("roomListStr", roomListStr);
         model.addAttribute("user", user);
         return "chat/home";
     }

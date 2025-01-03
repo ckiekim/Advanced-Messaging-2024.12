@@ -1,14 +1,50 @@
-let userId, roomId;
+let stompClient = null, socket = null;
+let userId = null, roomId = null;
 
-async function fetchChatItems() {
+function connect() {
     userId = $('#userId').val();
     roomId = $('#roomId').val();
+    socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, frame => {
+        // console.log('Connected:', frame);
+        stompClient.subscribe('/topic/' + roomId, message => {
+            showMessage(message.body);
+        });
+        sendSignal();
+    });
+}
+
+function sendMessage() {
+    const message = $('#messageInput').val();
+    const groupMessage = { sender: userId, roomId, content: message };
+    // console.log(groupMessage);
+    stompClient.send('/app/chatRoom/' + roomId, {}, JSON.stringify(groupMessage));
+}
+
+function showMessage(message) {
+    const parsedMessage = JSON.parse(message);
+    console.log("Parsed message: ", parsedMessage);
+    setTimeout(async () => {
+        await fetchChatItems();
+        if (parsedMessage.content !== 'OK_SIGNAL')
+            sendSignal();
+    }, 100);
+}
+
+function sendSignal() {
+    const groupMessage = { sender: userId, roomId, content: 'OK_SIGNAL' };
+    stompClient.send('/app/signal/' + roomId, {}, JSON.stringify(groupMessage));
+}
+
+async function fetchChatItems() {
     try {
         const response = await fetch(`/chat/getChatItems?userId=${userId}&roomId=${roomId}`);
         if (response.ok) {
             setTimeout(async () => {
                 const chatItemsByDate = await response.json();
                 updateChatContainer(chatItemsByDate);
+                // sendSignal();
             }, 100);
         } 
     } catch (error) {
@@ -34,7 +70,7 @@ function updateChatContainer(chatItemsByDate) {
             const chatItemDiv = document.createElement("div");
 
             if (chat.isMine === 0) {
-                console.log(chat);
+                // console.log(chat);
                 // 받은 메시지
                 chatItemDiv.innerHTML = `
                     <div>
@@ -45,7 +81,7 @@ function updateChatContainer(chatItemsByDate) {
                         <p>${chat.message}</p>
                         <span style="font-size: 0.6rem;">
                             ${chat.timeStr}
-                            ${chat.unreadCount !== 0 ? `<span class="read-status">1</span>` : ''}
+                            ${chat.unreadCount !== 0 ? `<span class="read-status">${chat.unreadCount}</span>` : ''}
                         </span>
                     </div>
                 `;
@@ -54,7 +90,7 @@ function updateChatContainer(chatItemsByDate) {
                 chatItemDiv.innerHTML = `
                     <div class="message sent">
                         <span style="font-size: 0.6rem; margin-right: 3px;">
-                            ${chat.unreadCount !== 0 ? `<span class="read-status">1</span>` : ''}
+                            ${chat.unreadCount !== 0 ? `<span class="read-status">${chat.unreadCount}</span>` : ''}
                             ${chat.timeStr}
                         </span>
                         <p>${chat.message}</p>
@@ -84,6 +120,3 @@ function handleEnterKey(event) {
     }
 }
 
-function sendMessage() {
-    const message = document.getElementById('messageInput').value;
-}
