@@ -24,4 +24,8 @@ public class ChatRoomService {
     public void insertChatRoom(ChatRoom chatRoom) {
         chatRoomRepository.save(chatRoom);
     }
+
+    public void updateChatRoom(ChatRoom chatRoom) {
+        chatRoomRepository.save(chatRoom);
+    }
 }

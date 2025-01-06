@@ -119,3 +119,85 @@ function handleEnterKey(event) {
     }
 }
 
+function handleMenu() {
+    const dropdown = document.getElementById('dropdownMenu');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('dropdownMenu');
+    const chatMenuIcon = document.getElementById('chatMenu');
+    if (!dropdown.contains(event.target) && event.target !== chatMenuIcon) {
+        dropdown.style.display = 'none';
+    }
+});
+
+function openInviteModal() {
+    fetchUsers();
+}
+
+async function fetchUsers() {
+    try {
+        const response = await fetch('/chat/users/' + roomId);
+        if (!response.ok) {
+            throw new Error('Failed to fetch users');
+        }
+        const users = await response.json();
+        populateUserList(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+    }
+}
+
+function populateUserList(users) {
+    const userList = document.getElementById('userList');
+    userList.innerHTML = '';
+
+    // 사용자 목록 생성
+    users.forEach(user => {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item';
+        listItem.innerHTML = `
+            <div>
+                <img src="${user.profileUrl}" alt="${user.uname}" width="30" class="rounded-circle me-2">
+                ${user.uname}
+            </div>
+            <input type="checkbox" class="form-check-input" data-id="${user.uid}" 
+                ${user.member ? 'checked' : ''} ${user.member ? 'disabled' : ''}>
+        `;
+        userList.appendChild(listItem);
+    });
+
+    // 모달 열기
+    const inviteModal = new bootstrap.Modal(document.getElementById('inviteModal'));
+    inviteModal.show();
+}
+
+async function confirmInvite() {
+    const selectedUsers = [];
+    const checkboxes = document.querySelectorAll('#userList .form-check-input');
+
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            selectedUsers.push(checkbox.getAttribute('data-id'));
+        }
+    });
+
+    // console.log('Selected Users:', selectedUsers); // 초대한 사용자 목록
+    try {
+        const response = await fetch('/chat/addMembers/' + roomId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(selectedUsers)     // 데이터를 JSON 형식으로 변환하여 전송
+        });
+        location.href = '/chat/each/' + roomId;
+    } catch (error) {
+        console.error('Network Error:', error);
+        alert('서버와 연결 중 오류가 발생했습니다.');
+    }
+
+    // 모달 닫기
+    const inviteModal = bootstrap.Modal.getInstance(document.getElementById('inviteModal'));
+    inviteModal.hide();
+}

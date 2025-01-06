@@ -47,8 +47,19 @@
                   </div>
                   <div>
                     <i class="fa-solid fa-magnifying-glass me-2"></i>
-                    <i class="fa-solid fa-gear me-2"></i>
+                    <a href="#" onclick="handleMenu()"><i id="chatMenu" class="fa-solid fa-bars me-2"></i></a>
                     <i id="statusIcon" class="fa-solid fa-link"></i>
+                    <div id="dropdownMenu" class="dropdown-menu">
+                      <a href="#" class="dropdown-item" onclick="openInviteModal()">
+                        <i class="fa-regular fa-square-plus"></i> 대화상대 초대
+                      </a>
+                      <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-pen-to-square"></i> 채팅방 이름 변경
+                      </a>
+                      <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> 채팅방 나가기
+                      </a>
+                  </div>
                   </div>
                 </div>
 
@@ -61,6 +72,34 @@
             <div class="col-3"></div>
           </div>
         </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invite Modal -->
+  <div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="inviteModalLabel">대화상대 초대</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Selected Users -->
+          <div id="selectedUsers" class="mb-3">
+            <!-- 선택된 사용자 태그가 동적으로 추가됩니다 -->
+          </div>
+          <!-- Search Input -->
+          <input type="text" id="searchUserInput" class="form-control mb-3" placeholder="친구 검색">
+          <!-- User List -->
+          <ul id="userList" class="list-group">
+            <!-- 사용자 목록이 동적으로 추가됩니다 -->
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="confirmInvite()">확인</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+        </div>
       </div>
     </div>
   </div>

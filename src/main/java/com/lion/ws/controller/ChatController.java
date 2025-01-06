@@ -103,6 +103,45 @@ public class ChatController {
         return "";
     }
 
+    @GetMapping("/users/{roomId}")
+    @ResponseBody
+    public ResponseEntity<List<UserDto>> getUsers(@PathVariable long roomId, HttpSession session) {
+        List<User> users = userService.getUsers();
+        ChatRoom chatRoom = chatRoomService.findById(roomId);
+        Set<ChatUser> members = chatRoom.getMembers();
+        List<UserDto> userDtoList = new ArrayList<>();
+        for (User user: users) {
+            boolean isMember = user.getChatUsers().stream()
+                    .anyMatch(chatUser -> chatUser.getChatRoom().equals(chatRoom));
+            UserDto userDto = UserDto.builder()
+                    .uid(user.getUid()).uname(user.getUname()).profileUrl(user.getProfileUrl())
+                    .isMember(isMember)
+                    .build();
+            userDtoList.add(userDto);
+        }
+//        userDtoList.forEach(x -> System.out.println(x));
+        return ResponseEntity.ok(userDtoList);
+    }
+
+    @PostMapping("/addMembers/{roomId}")
+    @ResponseBody
+    public ResponseEntity<String> addMembers(@PathVariable long roomId, @RequestBody List<String> selectedUsers) {
+        ChatRoom chatRoom = chatRoomService.findById(roomId);
+        Set<ChatUser> members = chatRoom.getMembers();
+        for (String uid: selectedUsers) {
+            User user = userService.findByUid(uid);
+            ChatUser chatUser = ChatUser.builder()
+                    .chatRoom(chatRoom).user(user).joinedAt(LocalDateTime.now())
+                    .build();
+            members.add(chatUser);
+        }
+        if (chatRoom.getName().equals("personal") && members.size() >= 3 )
+            chatRoom.setName("group");
+        chatRoom.setMembers(members);
+        chatRoomService.updateChatRoom(chatRoom);
+        return ResponseEntity.ok("");
+    }
+
     @GetMapping("/initRoom")
     public String initRoomForm() {
         return "chat/initRoom";
