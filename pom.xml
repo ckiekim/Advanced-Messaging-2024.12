@@ -91,6 +91,11 @@
 			<version>1.1.9</version> 		<!-- Spring Boot 3.3.7에 호환되는 최신 버전 -->
 		</dependency>
 
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

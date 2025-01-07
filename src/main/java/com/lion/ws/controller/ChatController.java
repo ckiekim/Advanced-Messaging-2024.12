@@ -119,7 +119,6 @@ public class ChatController {
                     .build();
             userDtoList.add(userDto);
         }
-//        userDtoList.forEach(x -> System.out.println(x));
         return ResponseEntity.ok(userDtoList);
     }
 

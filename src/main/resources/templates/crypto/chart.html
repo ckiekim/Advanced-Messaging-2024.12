@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candle Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script>
+        window.onload = () => {
+            fetch('/crypto/msft')
+                .then(response => response.json())
+                .then(data => {
+                    // 데이터 변환: OHLC 및 타임스탬프 -> ISO 날짜 형식
+                    const candlestickData = data.results.map(entry => ({
+                        x: new Date(entry.t), // 날짜 (x축)
+                        o: entry.o,           // Open 가격
+                        h: entry.h,           // High 가격
+                        l: entry.l,           // Low 가격
+                        c: entry.c            // Close 가격
+                    }));
+
+                    const filteredData = candlestickData.filter(entry => entry.o !== null); // 유효한 데이터만 필터링
+
+                    const ctx = document.getElementById('candleChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'candlestick',
+                        data: {
+                            datasets: [{
+                                label: 'MSFT Daily Prices',
+                                data: filteredData, // 데이터 배열: {x, o, h, l, c}
+                                borderColor: 'rgba(0, 0, 0, 0)',
+                                barPercentage: 0.1, // 캔들 바 비율
+                                categoryPercentage: 0.1, // 카테고리 간격 비율
+                                color: {
+                                    up: 'green', // 상승일 색상
+                                    down: 'red', // 하락일 색상
+                                    unchanged: 'gray' // 변화 없을 때 색상
+                                }
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    type: 'time', // 시간 기반 x축
+                                    time: {
+                                        unit: 'day',
+                                        displayFormats: { day: 'MMM dd' }
+                                    },
+                                    ticks: {
+                                        autoSkip: true,
+                                        maxTicksLimit: 10 // x축 최대 라벨 수 제한
+                                    },
+                                    title: { display: true, text: 'Date' },
+                                    bounds: 'data',
+                                    offset: true // 시작/끝 캔들이 잘리지 않도록 여백 추가
+                                },
+                                y: {
+                                    title: { display: true, text: 'Price (USD)' },
+                                    beginAtZero: false
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            const ohlc = context.raw;
+                                            return `Open: ${ohlc.o}, High: ${ohlc.h}, Low: ${ohlc.l}, Close: ${ohlc.c}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+        };
+    </script>
+</head>
+<body style="margin: 40px;">
+    <h1>Candle Chart</h1>
+    <canvas id="candleChart" width="1200" height="600"></canvas>
+</body>
+</html>
