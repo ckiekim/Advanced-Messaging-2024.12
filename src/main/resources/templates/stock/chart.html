@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script>
         window.onload = () => {
-            fetch('/crypto/msft')
+            fetch('/stock/msft')
                 .then(response => response.json())
                 .then(data => {
                     // 데이터 변환: OHLC 및 타임스탬프 -> ISO 날짜 형식
@@ -31,8 +31,8 @@
                                 label: 'MSFT Daily Prices',
                                 data: filteredData, // 데이터 배열: {x, o, h, l, c}
                                 borderColor: 'rgba(0, 0, 0, 0)',
-                                barPercentage: 0.1, // 캔들 바 비율
-                                categoryPercentage: 0.1, // 카테고리 간격 비율
+                                barPercentage: 0.06, // 캔들 바 비율
+                                categoryPercentage: 0.06, // 카테고리 간격 비율
                                 color: {
                                     up: 'green', // 상승일 색상
                                     down: 'red', // 하락일 색상

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candle Chart</title>
+    <style>
+        input, button { padding: 3px; margin-right: 20px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();     // 줄바꿈 방지(기본 엔터 키 동작 방지)
+                getCandleData();
+            }
+        }
+        function getCandleData() {
+            const tickerTag = document.getElementById('ticker');
+            const ticker = tickerTag.value;
+            const startDay = document.getElementById('startDay').value;
+            const endDay = document.getElementById('endDay').value;
+            tickerTag.value = '';
+            fetch(`/stock/ticker/${ticker}?startDay=${startDay}&endDay=${endDay}`)    // 데이터 요청
+                .then(response => response.json())
+                .then(data => {
+                    // 데이터 변환
+                    const candlestickData = data.results.map(entry => ({
+                        x: entry.t, // Unix 타임스탬프 그대로 사용
+                        y: [entry.o, entry.h, entry.l, entry.c] // [Open, High, Low, Close] 값
+                    }));
+
+                    const options = {
+                        chart: {
+                            type: 'candlestick',
+                            height: 600
+                        },
+                        title: {
+                            text: ticker + ' Daily Prices', // 그래프 타이틀
+                            align: 'center', // 타이틀 정렬: left, center, right
+                            margin: 10, // 타이틀과 그래프 사이 간격
+                            style: {
+                                fontSize: '18px', // 폰트 크기
+                                fontWeight: 'bold', // 폰트 굵기
+                                color: '#333' // 폰트 색상
+                            }
+                        },
+                        series: [{
+                            name: ticker + ' Daily Prices',
+                            data: candlestickData
+                        }],
+                        xaxis: {
+                            type: 'datetime',
+                            title: { text: 'Date' }
+                        },
+                        yaxis: {
+                            title: { text: 'Price (USD)' }
+                        },
+                        tooltip: {
+                            shared: false,
+                            custom: function({ seriesIndex, dataPointIndex, w }) {
+                                // 데이터 가져오기
+                                const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
+                                const date = new Date(dataPoint.x).toISOString().split('T')[0]; // 타임스탬프를 날짜로 변환
+                                const [open, high, low, close] = dataPoint.y; // OHLC 값 추출
+
+                                // 툴팁 HTML 생성
+                                return `
+                                    <div style="padding: 10px; border: 1px solid #ccc; background: #fff;">
+                                        <div><strong>Date:</strong> ${date}</div>
+                                        <div><strong>Open:</strong> ${open}</div>
+                                        <div><strong>High:</strong> ${high}</div>
+                                        <div><strong>Low:</strong> ${low}</div>
+                                        <div><strong>Close:</strong> ${close}</div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    };
+
+                    const chart = new ApexCharts(document.querySelector("#candleChart"), options);
+                    chart.render();
+                })
+                .catch(error => console.error("Error loading data:", error));
+        }
+    </script>
+</head>
+<body style="margin: 40px;">
+    <h1>
+        Candle Chart
+        <span style="margin-left: 100px; font-size: small;">
+            <input type="date" id="startDay" value="2024-07-01">
+            <input type="date" id="endDay" value="2024-12-31">
+            <input type="text" id="ticker" onkeypress="handleEnterKey(event)" placeholder="Ticker 입력">
+            <button onclick="getCandleData()">검색</button>
+        </span>
+    </h1>
+    <div id="candleChart"></div>
+</body>
+</html>
