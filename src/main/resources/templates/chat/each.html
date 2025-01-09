@@ -3,7 +3,7 @@
 <head>
   <header th:replace="~{fragments/base :: head}"></header>
   <link href="/css/chatEach.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
   <script src="/js/chatEach.js"></script>
   <script>
@@ -41,9 +41,8 @@
                     <span style="font-weight: bold;" th:text="${roomName}">마리아</span>
                     <input type="hidden" id="roomId" th:value="${roomId}">
                     <input type="hidden" id="userId" th:value="${user.uid}">
-                    <!-- <input type="hidden" id="chattingStatus" th:value="|chat:${friend.uid}|">
                     <input type="hidden" id="serverPort" th:value="${session.serverPort}">
-                    <input type="hidden" id="serverIp" th:value="${session.serverIp}"> -->
+                    <input type="hidden" id="serverIp" th:value="${session.serverIp}">
                   </div>
                   <div>
                     <i class="fa-solid fa-magnifying-glass me-2"></i>

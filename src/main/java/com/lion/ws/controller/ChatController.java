@@ -6,6 +6,7 @@ import com.lion.ws.util.ChatUtil;
 import com.lion.ws.util.TimeUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +28,8 @@ public class ChatController {
     @Autowired private UserService userService;
     @Autowired private ChatUtil chatUtil;
     @Autowired private TimeUtil timeUtil;
+    @Value("${server.port}") private String serverPort;
+    @Value("${server.ip}") private String serverIp;
 
     @GetMapping("/home")
     public String home(HttpSession session, Model model) {
@@ -37,6 +40,8 @@ public class ChatController {
                 .map(chatter -> String.valueOf(chatter.getRoomId()))
                 .collect(Collectors.joining(","));
 
+        session.setAttribute("serverPort", serverPort);
+        session.setAttribute("serverIp", serverIp);
         session.setAttribute("menu", "chat");
         model.addAttribute("roomListStr", roomListStr);
         model.addAttribute("user", user);

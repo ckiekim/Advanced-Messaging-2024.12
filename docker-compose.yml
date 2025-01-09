@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8080:8080" # Maps the application's port
+    depends_on:
+      - rabbitmq # Ensures RabbitMQ starts before the app
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672" # RabbitMQ port for AMQP
+      - "15672:15672" # RabbitMQ management console
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
