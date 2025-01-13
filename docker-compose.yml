@@ -10,6 +10,7 @@ services:
     environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
+      - SPRING_PROFILES_ACTIVE=prod
 
   rabbitmq:
     image: rabbitmq:3-management
