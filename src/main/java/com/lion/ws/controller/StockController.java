@@ -14,7 +14,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -22,21 +27,78 @@ import java.util.Map;
 public class StockController {
     @Value("${polygon.io.key}") private String polygonApiKey;
     @Value("${alphavantage.key}") private String alphavantageApiKey;
+    @Value("${profit.com.key}") private String profitApiKey;
 
     @GetMapping("/chart")
     public String chart() {
         return "stock/chart";
     }
 
-    @GetMapping("/apex")
-    public String apex(HttpSession session) {
+    @GetMapping("/polygon")
+    public String polygon(HttpSession session) {
         session.setAttribute("menu", "stock");
-        return "stock/apex";
+        return "stock/polygon";
+    }
+
+    @GetMapping("/profit")
+    public String profit() {
+        return "stock/profit";
     }
 
     @GetMapping("/candleData/{ticker}")
     @ResponseBody
     public Map<String, Object> getCandleData(@PathVariable String ticker,
+                                                  @RequestParam(name="s", defaultValue = "2024-07-01") String startDay,
+                                                  @RequestParam(name="e", defaultValue = "2024-12-31") String endDay) {
+        String url = "https://api.profit.com/data-api/market-data/historical/daily/" + ticker + "?token=" + profitApiKey + "&start_date=" + startDay + "&end_date=" + endDay;
+        RestTemplate restTemplate = new RestTemplate();
+        String jsonResponse = restTemplate.getForObject(url, String.class);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("tickerName", getTickerName(ticker));
+        result.put("startDay", startDay);
+        result.put("endDay", endDay);
+        result.put("data", handleData(jsonResponse));
+
+        return result;
+    }
+
+    private List<Map<String, Object>> handleData(String jsonData) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map<String, Object>> processedData = new ArrayList<>();
+
+        try {
+            // JSON 데이터를 리스트로 변환
+            List<Map<String, Object>> rawData = objectMapper.readValue(jsonData, List.class);
+
+            for (Map<String, Object> entry : rawData) {
+                Map<String, Object> candle = new LinkedHashMap<>();
+
+                // 타임스탬프를 날짜로 변환
+                long timestamp = ((Number) entry.get("t")).longValue();
+                LocalDate date = Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDate();
+
+                candle.put("t", date);
+                candle.put("o", entry.get("o"));
+                candle.put("h", entry.get("h"));
+                candle.put("l", entry.get("l"));
+                candle.put("c", entry.get("c"));
+                candle.put("v", entry.get("v"));
+
+                processedData.add(candle);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        processedData.forEach(x -> {
+//            System.out.println("t=" + x.get("t") + ", o=" + x.get("o"));
+//        });
+        return processedData;
+    }
+
+    @GetMapping("/candleData2/{ticker}")
+    @ResponseBody
+    public Map<String, Object> getPolygonCandleData(@PathVariable String ticker,
                                              @RequestParam(name="s", defaultValue = "2024-07-01") String startDay,
                                              @RequestParam(name="e", defaultValue = "2024-12-31") String endDay) {
         String url = "https://api.polygon.io/v2/aggs/ticker/" + ticker + "/range/1/day/" + startDay + "/" + endDay + "?apiKey=" + polygonApiKey;

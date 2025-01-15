@@ -12,15 +12,15 @@ function getCandleData() {
     const endDay = document.getElementById('endDay').value;
     tickerTag.value = '';
 
-    fetch(`/stock/candleData/${ticker}?s=${startDay}&e=${endDay}`)    // 캔들 데이터 가져오기
+    fetch(`/stock/candleData2/${ticker}?s=${startDay}&e=${endDay}`)    // 캔들 데이터 가져오기
         .then(response => response.json())
         .then(result => {
             document.getElementById('startDay').value = result.startDay;
             document.getElementById('endDay').value = result.endDay;
             const tickerName = result.tickerName;
             // 데이터 변환
-            const candlestickData = result.data.map(entry => ({
-                x: entry.t, // Unix 타임스탬프 그대로 사용
+            const candlestickData = result.data.results.map(entry => ({
+                x: entry.t, 
                 y: [entry.o, entry.h, entry.l, entry.c] // [Open, High, Low, Close] 값
             }));
 

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        input, button { padding: 3px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="/js/apexChart.js"></script>
+</head>
+<body style="margin: 40px;">
+    <h1>Stock Data</h1>
+    <input type="date" id="startDay">
+    <input type="date" id="endDay">
+    <input type="text" id="ticker" placeholder="Ticker 입력">
+    <button onclick="getCandleData()">검색</button><br><br>
+    <hr>
+    <div id="candleChart"></div>
+</body>
+</html>

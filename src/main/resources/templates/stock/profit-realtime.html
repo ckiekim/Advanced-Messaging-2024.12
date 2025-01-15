@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const websocketUrl = "wss://api.profit.com/real-time?token=f506f31300764db68587a19b28615b80";
+        const socket = new WebSocket(websocketUrl);
+        socket.onopen = () => {
+            console.log("WebSocket connected");
+            const subscriptionMessage = JSON.stringify({
+                action: "subscribe",
+                tickers: ["NVDA.US"]
+            });
+            socket.send(subscriptionMessage);
+            console.log("Subscription message sent: ", subscriptionMessage);
+        }
+        socket.onmessage = event => {
+            const data = JSON.parse(event.data);
+            console.log("Received data:", data);
+        }
+        socket.onerror = error => {
+            console.error("WebSocket error:", error);
+        };
+        socket.onclose = event => {
+            console.log("WebSocket closed", event);
+        };
+    </script>
+</body>
+</html>
