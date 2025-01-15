@@ -40,16 +40,34 @@ public class StockController {
         return "stock/polygon";
     }
 
+    @GetMapping("/candleData/{ticker}")
+    @ResponseBody
+    public Map<String, Object> getPolygonCandleData(@PathVariable String ticker,
+                                                    @RequestParam(name="s", defaultValue = "2024-07-01") String startDay,
+                                                    @RequestParam(name="e", defaultValue = "2024-12-31") String endDay) {
+        String url = "https://api.polygon.io/v2/aggs/ticker/" + ticker + "/range/1/day/" + startDay + "/" + endDay + "?apiKey=" + polygonApiKey;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("tickerName", getTickerName(ticker));
+        result.put("startDay", startDay);
+        result.put("endDay", endDay);
+        result.put("data", response.getBody());
+
+        return result;
+    }
+
     @GetMapping("/profit")
     public String profit() {
         return "stock/profit";
     }
 
-    @GetMapping("/candleData/{ticker}")
+    @GetMapping("/candleData2/{ticker}")
     @ResponseBody
-    public Map<String, Object> getCandleData(@PathVariable String ticker,
-                                                  @RequestParam(name="s", defaultValue = "2024-07-01") String startDay,
-                                                  @RequestParam(name="e", defaultValue = "2024-12-31") String endDay) {
+    public Map<String, Object> getProfitCandleData(@PathVariable String ticker,
+                                     @RequestParam(name="s", defaultValue = "2024-07-01") String startDay,
+                                     @RequestParam(name="e", defaultValue = "2024-12-31") String endDay) {
         String url = "https://api.profit.com/data-api/market-data/historical/daily/" + ticker + "?token=" + profitApiKey + "&start_date=" + startDay + "&end_date=" + endDay;
         RestTemplate restTemplate = new RestTemplate();
         String jsonResponse = restTemplate.getForObject(url, String.class);
@@ -94,24 +112,6 @@ public class StockController {
 //            System.out.println("t=" + x.get("t") + ", o=" + x.get("o"));
 //        });
         return processedData;
-    }
-
-    @GetMapping("/candleData2/{ticker}")
-    @ResponseBody
-    public Map<String, Object> getPolygonCandleData(@PathVariable String ticker,
-                                             @RequestParam(name="s", defaultValue = "2024-07-01") String startDay,
-                                             @RequestParam(name="e", defaultValue = "2024-12-31") String endDay) {
-        String url = "https://api.polygon.io/v2/aggs/ticker/" + ticker + "/range/1/day/" + startDay + "/" + endDay + "?apiKey=" + polygonApiKey;
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("tickerName", getTickerName(ticker));
-        result.put("startDay", startDay);
-        result.put("endDay", endDay);
-        result.put("data", response.getBody());
-
-        return result;
     }
 
     private String getTickerName(String ticker) {

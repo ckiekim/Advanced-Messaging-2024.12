@@ -19,8 +19,8 @@ function getCandleData() {
             document.getElementById('endDay').value = result.endDay;
             const tickerName = result.tickerName;
             // 데이터 변환
-            const candlestickData = result.data.map(entry => ({
-                x: entry.t, // Unix 타임스탬프 그대로 사용
+            const candlestickData = result.data.results.map(entry => ({
+                x: entry.t, 
                 y: [entry.o, entry.h, entry.l, entry.c] // [Open, High, Low, Close] 값
             }));
 
