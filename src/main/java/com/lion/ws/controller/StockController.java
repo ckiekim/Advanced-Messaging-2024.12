@@ -43,8 +43,8 @@ public class StockController {
     @GetMapping("/candleData/{ticker}")
     @ResponseBody
     public Map<String, Object> getPolygonCandleData(@PathVariable String ticker,
-                                                    @RequestParam(name="s", defaultValue = "2024-07-01") String startDay,
-                                                    @RequestParam(name="e", defaultValue = "2024-12-31") String endDay) {
+                                            @RequestParam(name="s", defaultValue = "2024-07-01") String startDay,
+                                            @RequestParam(name="e", defaultValue = "2024-12-31") String endDay) {
         String url = "https://api.polygon.io/v2/aggs/ticker/" + ticker + "/range/1/day/" + startDay + "/" + endDay + "?apiKey=" + polygonApiKey;
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
