@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,10 +20,7 @@ import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/stock")
@@ -28,6 +28,51 @@ public class StockController {
     @Value("${polygon.io.key}") private String polygonApiKey;
     @Value("${alphavantage.key}") private String alphavantageApiKey;
     @Value("${profit.com.key}") private String profitApiKey;
+    @Value("${kis.app.key}") private String kisAppKey;
+    @Value("${kis.secret.key}") private String kisSecretKey;
+
+    @GetMapping("/kis-real")
+    public String kisReal(HttpSession session, Model model) {
+        String kisApprovalKey = (String) session.getAttribute("KIS_APPROVAL_KEY");
+        if (kisApprovalKey == null || kisApprovalKey.isEmpty()) {
+            kisApprovalKey = getKisApprovalKey();
+            session.setAttribute("KIS_APPROVAL_KEY", kisApprovalKey);
+            session.setMaxInactiveInterval(24 * 60 * 60);
+        }
+        model.addAttribute("approvalKey", kisApprovalKey);
+        return "stock/kis-real";
+    }
+
+    private String getKisApprovalKey() {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json; charset=utf-8");
+
+        Map<String, String> body = new HashMap<>();
+        body.put("grant_type", "client_credentials");
+        body.put("appkey", kisAppKey);
+        body.put("secretkey", kisSecretKey);
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "https://openapi.koreainvestment.com:9443" + "/oauth2/Approval",
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+            String approvalKey = jsonNode.get("approval_key").asText();
+            return approvalKey;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     @GetMapping("/chart")
     public String chart() {

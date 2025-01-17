@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국투자증권 Open API</title>
+    <script>
+        function connect() {
+            const websocketUrl = 'ws://ops.koreainvestment.com:21000'; // + '/tryitout/H0ZFASP0';
+            const approvalKey = document.getElementById('approvalKey').value;
+            const socket = new WebSocket(websocketUrl);
+            const displayPart = document.getElementById('displayPart');
+
+            socket.onopen = () => {
+                console.log('Websocket 연결 성공');
+                const requestData = {
+                    header: {
+                        'approval_key': approvalKey,
+                        'custtype': 'P',
+                        'tr_type': '1',
+                        'content-type': 'utf-8'
+                    },
+                    body: {
+                        input: {
+                            'tr_id': 'H0ZFASP0',
+                            'tr_key': '277810'    // '111V06'        
+                        }
+                    }
+                }
+                socket.send(JSON.stringify(requestData));
+                console.log('요청 데이터 전송:', requestData);
+            }
+
+            socket.onmessage = event => {
+                // console.log('서버 응답:', event.data);
+                const response = JSON.parse(event.data);
+                displayPart.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+            }
+
+            socket.onerror = (error) => {
+                console.error('WebSocket 오류:', error);
+            };
+
+            socket.onclose = () => {
+                console.log('WebSocket 연결 종료');
+            };
+        }
+    </script>
+</head>
+<body style="margin: 40px;">
+    <input type="hidden" id="approvalKey" th:value="${approvalKey}">
+    <button onclick="connect()">확인</button>
+    <hr>
+    <div id="displayPart" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;">
+
+    </div>
+</body>
+</html>
