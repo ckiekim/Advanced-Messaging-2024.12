@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국투자증권 Open API</title>
+    <script>
+        function connect() {
+            const websocketUrl = 'ws://ops.koreainvestment.com:21000'; 
+            const approvalKey = document.getElementById('approvalKey').value;
+            const socket = new WebSocket(websocketUrl);
+            const displayPart = document.getElementById('displayPart');
+            document.getElementById("myTable").style.display = "table";
+
+            socket.onopen = () => {
+                console.log('Websocket 연결 성공');
+                const requestData = {
+                    header: {
+                        'approval_key': approvalKey,
+                        'custtype': 'P',
+                        'tr_type': '1',
+                        'content-type': 'utf-8'
+                    },
+                    body: {
+                        input: {
+                            'tr_id': 'H0STCNT0',
+                            'tr_key': '005930'       
+                        }
+                    }
+                }
+                socket.send(JSON.stringify(requestData));
+                console.log('요청 데이터 전송:', requestData);
+            }
+
+            socket.onmessage = event => {
+                console.log('서버 응답:', event.data);
+                if (event.data[0] === '0') {
+                    const realData = event.data.split('^');
+                    document.getElementById('STCK_CNTG_HOUR').innerText = realData[1];
+                    document.getElementById('STCK_PRPR').innerText = realData[2];
+                    document.getElementById('PRDY_VRSS_SIGN').innerText = realData[3];
+                    document.getElementById('PRDY_VRSS').innerText = realData[4];
+                    document.getElementById('PRDY_CTRT').innerText = realData[5];
+                    document.getElementById('STCK_OPRC').innerText = realData[7];
+                    document.getElementById('STCK_HGPR').innerText = realData[8];
+                    document.getElementById('STCK_LWPR').innerText = realData[9];
+                    document.getElementById('CNTG_VOL').innerText = realData[12];
+                    document.getElementById('ACML_VOL').innerText = realData[13];
+                } else {
+                    const response = JSON.parse(event.data);
+                    displayPart.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                }
+            }
+
+            socket.onerror = (error) => {
+                console.error('WebSocket 오류:', error);
+            };
+
+            socket.onclose = () => {
+                console.log('WebSocket 연결 종료');
+            };
+        }
+    </script>
+    <style>
+        td, th { padding: 3px; text-align: center; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <input type="hidden" id="approvalKey" th:value="${approvalKey}">
+    <button onclick="connect()">확인</button>
+    <hr>
+    <div id="displayPart" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+    <table id="myTable" border="1" style="display: none;">
+        <tr>
+            <td>체결시간:</td>
+            <td><span id="STCK_CNTG_HOUR"></span></td>
+        </tr>
+        <tr>
+            <td>현재가:</td>
+            <td><span id="STCK_PRPR"></span></td>
+        </tr>
+        <tr>
+            <td>전일 대비:</td>
+            <td><span id="PRDY_VRSS_SIGN"></span> <span id="PRDY_VRSS"></span> (<span id="PRDY_CTRT"></span>%)</td>
+        </tr>
+        <tr>
+            <td>시가:</td>
+            <td><span id="STCK_OPRC"></span></td>
+        </tr>
+        <tr>
+            <td>고가:</td>
+            <td><span id="STCK_HGPR"></span></td>
+        </tr>
+        <tr>
+            <td>저가:</td>
+            <td><span id="STCK_LWPR"></span></td>
+        </tr>
+        <tr>
+            <td>체결 거래량:</td>
+            <td><span id="CNTG_VOL"></span></td>
+        </tr>
+        <tr>
+            <td>누적 거래량:</td>
+            <td><span id="ACML_VOL"></span></td>
+        </tr>
+    </table>   
+</body>
+</html>

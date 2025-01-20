@@ -6,7 +6,7 @@
     <title>한국투자증권 Open API</title>
     <script>
         function connect() {
-            const websocketUrl = 'ws://ops.koreainvestment.com:21000'; // + '/tryitout/H0ZFASP0';
+            const websocketUrl = 'ws://ops.koreainvestment.com:21000';
             const approvalKey = document.getElementById('approvalKey').value;
             const socket = new WebSocket(websocketUrl);
             const displayPart = document.getElementById('displayPart');

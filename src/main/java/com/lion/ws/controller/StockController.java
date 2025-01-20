@@ -55,7 +55,7 @@ public class StockController {
             session.setMaxInactiveInterval(24 * 60 * 60);
         }
         model.addAttribute("approvalKey", kisApprovalKey);
-        return "stock/kis-real";
+        return "stock/kis-real-market-price";
     }
 
     @GetMapping("/chart")
