@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국투자증권 Open API</title>
+    <script>
+        function getStockInfo() {
+            const itemCode = document.getElementById('itemCode').value.trim();
+            const displayPart = document.getElementById('displayPart');
+
+            fetch('/stock/getStockInfo?itemCode=' + itemCode)
+                .then(response => response.json())
+                .then(output => {
+                    displayPart.innerHTML = `<pre>${JSON.stringify(output, null, 2)}</pre>`;
+                })
+                .catch(error => console.error("Error loading data:", error));
+        }
+    </script>
+    <style>
+        input, button { padding: 3px; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <input type="text" id="itemCode" placeholder="종목 코드">
+    <button onclick="getStockInfo()">확인</button>
+    <hr>
+    <div id="displayPart" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+</body>
+</html>

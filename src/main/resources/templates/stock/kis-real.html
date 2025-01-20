@@ -10,6 +10,7 @@
             const approvalKey = document.getElementById('approvalKey').value;
             const socket = new WebSocket(websocketUrl);
             const displayPart = document.getElementById('displayPart');
+            document.getElementById("myTable").style.display = "table";
 
             socket.onopen = () => {
                 console.log('Websocket 연결 성공');
@@ -22,8 +23,8 @@
                     },
                     body: {
                         input: {
-                            'tr_id': 'H0ZFASP0',
-                            'tr_key': '277810'    // '111V06'        
+                            'tr_id': 'H0STASP0',
+                            'tr_key': '005930'       
                         }
                     }
                 }
@@ -32,9 +33,20 @@
             }
 
             socket.onmessage = event => {
-                // console.log('서버 응답:', event.data);
-                const response = JSON.parse(event.data);
-                displayPart.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                console.log('서버 응답:', event.data);
+                if (event.data[0] === '0') {
+                    const realData = event.data.split('^');
+                    document.getElementById('BSOP_HOUR').innerText = realData[1];
+                    for (let i=1; i<=10; i++) {
+                        document.getElementById('ASKP'+i).innerText = realData[i + 2];
+                        document.getElementById('ASKP_RSQN'+i).innerText = realData[20 + i + 2];
+                        document.getElementById('BIDP'+i).innerText = realData[10 + i + 2];
+                        document.getElementById('BIDP_RSQN'+i).innerText = realData[30 + i + 2];
+                    }
+                } else {
+                    const response = JSON.parse(event.data);
+                    displayPart.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                }
             }
 
             socket.onerror = (error) => {
@@ -46,13 +58,80 @@
             };
         }
     </script>
+    <style>
+        td, th { padding: 3px; }
+    </style>
 </head>
 <body style="margin: 40px;">
     <input type="hidden" id="approvalKey" th:value="${approvalKey}">
     <button onclick="connect()">확인</button>
     <hr>
-    <div id="displayPart" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;">
-
-    </div>
+    <div id="displayPart" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+    <div id="BSOP_HOUR"></div>
+    <table id="myTable" border="1" style="display: none;">
+        <tr>
+            <th>매도호가</th><th>매도호가 잔량</th><th>매수호가</th><th>매수호가 잔량</th>
+        </tr>
+        <tr>
+            <td><span id="ASKP1"></span></td>
+            <td><span id="ASKP_RSQN1"></span></td>
+            <td><span id="BIDP1"></span></td>
+            <td><span id="BIDP_RSQN1"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP2"></span></td>
+            <td><span id="ASKP_RSQN2"></span></td>
+            <td><span id="BIDP2"></span></td>
+            <td><span id="BIDP_RSQN2"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP3"></span></td>
+            <td><span id="ASKP_RSQN3"></span></td>
+            <td><span id="BIDP3"></span></td>
+            <td><span id="BIDP_RSQN3"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP4"></span></td>
+            <td><span id="ASKP_RSQN4"></span></td>
+            <td><span id="BIDP4"></span></td>
+            <td><span id="BIDP_RSQN4"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP5"></span></td>
+            <td><span id="ASKP_RSQN5"></span></td>
+            <td><span id="BIDP5"></span></td>
+            <td><span id="BIDP_RSQN5"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP6"></span></td>
+            <td><span id="ASKP_RSQN6"></span></td>
+            <td><span id="BIDP6"></span></td>
+            <td><span id="BIDP_RSQN6"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP7"></span></td>
+            <td><span id="ASKP_RSQN7"></span></td>
+            <td><span id="BIDP7"></span></td>
+            <td><span id="BIDP_RSQN7"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP8"></span></td>
+            <td><span id="ASKP_RSQN8"></span></td>
+            <td><span id="BIDP8"></span></td>
+            <td><span id="BIDP_RSQN8"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP9"></span></td>
+            <td><span id="ASKP_RSQN9"></span></td>
+            <td><span id="BIDP9"></span></td>
+            <td><span id="BIDP_RSQN9"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP10"></span></td>
+            <td><span id="ASKP_RSQN10"></span></td>
+            <td><span id="BIDP10"></span></td>
+            <td><span id="BIDP_RSQN10"></span></td>
+        </tr>
+    </table>
 </body>
 </html>
