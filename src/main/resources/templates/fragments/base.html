@@ -29,6 +29,9 @@
               <a class="nav-link" th:classappend="${session.menu eq 'chat' ? 'active' : ''}" href="/chat/home"><i class="fa-solid fa-comments"></i> 채팅</a>
             </li>
             <li class="nav-item ms-3">
+              <a class="nav-link" th:classappend="${session.menu eq 'kis' ? 'active' : ''}" href="/kis/realtime"><i class="fa-solid fa-arrow-trend-up"></i> 주식시세</a>
+            </li>
+            <li class="nav-item ms-3">
               <a class="nav-link" th:classappend="${session.menu eq 'stock' ? 'active' : ''}" href="/stock/polygon"><i class="fa-solid fa-chart-column"></i> 차트</a>
             </li>
             <li class="nav-item ms-3">

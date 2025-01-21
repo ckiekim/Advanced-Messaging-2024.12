@@ -52,6 +52,7 @@ public class KisController {
             session.setAttribute("KIS_APPROVAL_KEY", kisApprovalKey);
             session.setMaxInactiveInterval(24 * 60 * 60);
         }
+        session.setAttribute("menu", "kis");
         model.addAttribute("approvalKey", kisApprovalKey);
         return "kis/realtime";
     }

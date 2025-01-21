@@ -1,9 +1,15 @@
-let socket;
+let socket, beforeClosingPrice;
+
+function explore() {
+    fetchStockInfo();
+    connect();
+}
 
 function connect() {
     const websocketUrl = 'ws://ops.koreainvestment.com:21000';
     const approvalKey = document.getElementById('approvalKey').value;
     const itemCode = document.getElementById('itemCode').value.trim();
+    const todayStr = new Date().toISOString().substring(0,10);
     
     if (!itemCode) {
         alert('종목 코드를 입력해주세요.');
@@ -16,9 +22,7 @@ function connect() {
     }
 
     socket = new WebSocket(websocketUrl);
-    document.getElementById("nominalTable").style.display = "table";
-    document.getElementById("marketTable").style.display = "table";
-    
+
     socket.onopen = () => {
         console.log('Websocket 연결 성공');
         const nominalPriceRequest = {
@@ -56,27 +60,45 @@ function connect() {
 
     socket.onmessage = event => {
         console.log('서버 응답:', event.data);
+        document.getElementById('stck_shrn_iscd').innerText = itemCode;
+        document.getElementById('today').innerText = todayStr;
+
         if (event.data[0] === '0') {
             const realData = event.data.split('^');
             if (event.data.includes('H0STASP0')) {              // 실시간 호가
-                document.getElementById('BSOP_HOUR').innerText = realData[1];
-                for (let i=1; i<=10; i++) {
-                    document.getElementById('ASKP'+i).innerText = realData[i + 2];
-                    document.getElementById('ASKP_RSQN'+i).innerText = realData[20 + i + 2];
-                    document.getElementById('BIDP'+i).innerText = realData[10 + i + 2];
-                    document.getElementById('BIDP_RSQN'+i).innerText = realData[30 + i + 2];
+                for (let i=1; i<=5; i++) {
+                    document.getElementById('ASKP'+i).innerText = Number(realData[i + 2]).toLocaleString();
+                    document.getElementById('ASKP_RSQN'+i).innerText = Number(realData[20 + i + 2]).toLocaleString();
+                    document.getElementById('BIDP'+i).innerText = Number(realData[10 + i + 2]).toLocaleString();
+                    document.getElementById('BIDP_RSQN'+i).innerText = Number(realData[30 + i + 2]).toLocaleString();
                 }
             } else if (event.data.includes('H0STCNT0')) {       // 실시간 체결가
-                document.getElementById('STCK_CNTG_HOUR').innerText = realData[1];
-                document.getElementById('STCK_PRPR').innerText = realData[2];
-                document.getElementById('PRDY_VRSS_SIGN').innerText = realData[3];
-                document.getElementById('PRDY_VRSS').innerText = realData[4];
-                document.getElementById('PRDY_CTRT').innerText = realData[5];
-                document.getElementById('STCK_OPRC').innerText = realData[7];
-                document.getElementById('STCK_HGPR').innerText = realData[8];
-                document.getElementById('STCK_LWPR').innerText = realData[9];
-                document.getElementById('CNTG_VOL').innerText = realData[12];
-                document.getElementById('ACML_VOL').innerText = realData[13];
+                document.getElementById('STCK_CNTG_HOUR').innerText = realData[1].substring(0,2) + ':' + realData[1].substring(2,4) + ':' + realData[1].substring(4);
+                setElementAndColorClass(document.getElementById('STCK_PRPR'), Number(realData[2]));
+                document.getElementById('PRDY_VRSS_SIGN').innerHTML = 
+                    realData[3] === '2' ? '<i class="fa-solid fa-caret-up"></i>' : 
+                        realData[3] === '5' ? '<i class="fa-solid fa-caret-down"></i>' : '';
+                document.getElementById('PRDY_VRSS').innerText = Math.abs(Number(realData[4])).toLocaleString();
+                document.getElementById('PRDY_CTRT').innerText = Math.abs(Number(realData[5]));
+                setElementAndColorClass(document.getElementById('STCK_OPRC'), Number(realData[7]));
+                setElementAndColorClass(document.getElementById('STCK_HGPR'), Number(realData[8]));
+                setElementAndColorClass(document.getElementById('STCK_LWPR'), Number(realData[9]));
+                document.getElementById('CNTG_VOL').innerText = Number(realData[12]).toLocaleString();
+                document.getElementById('ACML_VOL').innerText = Number(realData[13]).toLocaleString();
+
+                const compareElement = document.getElementById('compareBeforeDay');
+                const classValue = compareElement.classList;
+                compareElement.classList.remove(classValue[0]);
+                if (realData[3] === '1' || realData[3] === '2') {
+                    compareElement.classList.add('text-danger');
+                    document.getElementById('compareSign').innerText = '＋';
+                } else if (realData[3] === '4' || realData[3] === '5') {
+                    compareElement.classList.add('text-primary');
+                    document.getElementById('compareSign').innerText = '－';
+                } else {
+                    compareElement.classList.add('text-body');
+                    document.getElementById('compareSign').innerText = '';
+                }
             }
         } 
     }
@@ -93,6 +115,31 @@ function connect() {
 function handleEnterKey(event) {
     if (event.key === 'Enter') {
         event.preventDefault();     // 줄바꿈 방지(기본 엔터 키 동작 방지)
-        connect();
+        explore();
     }
+}
+
+async function fetchStockInfo() {
+    const itemCode = document.getElementById('itemCode').value.trim();
+    fetch('/kis/getStockInfo?itemCode=' + itemCode)
+        .then(response => response.json())
+        .then(output => {
+            document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
+            document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
+            beforeClosingPrice = Number(output.bfdy_clpr);
+            document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
+        })
+        .catch(error => console.error("Error loading data:", error));
+}
+
+function setElementAndColorClass(element, price) {
+    element.innerText = price.toLocaleString();
+    const classValue = element.classList;
+    element.classList.remove(classValue[0]);
+    if (price > beforeClosingPrice)
+        element.classList.add('text-danger');
+    else if (price < beforeClosingPrice)
+        element.classList.add('text-primary');
+    else
+        element.classList.add('text-body');
 }

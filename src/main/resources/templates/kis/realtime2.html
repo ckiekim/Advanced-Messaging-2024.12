@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국투자증권 Open API</title>
+    <script src="/js/kisRealtime2.js"></script>
+    <style>
+        input, button, td, th { padding: 3px; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <input type="hidden" id="approvalKey" th:value="${approvalKey}">
+    <input type="text" id="itemCode" placeholder="종목 코드" onkeypress="handleEnterKey(event)">
+    <button onclick="connect()">확인</button>
+    <hr>
+    <div id="BSOP_HOUR"></div>
+    <table id="nominalTable" border="1" style="display: none;">
+        <tr>
+            <th>매도호가</th><th>매도호가 잔량</th><th>매수호가</th><th>매수호가 잔량</th>
+        </tr>
+        <tr>
+            <td><span id="ASKP1"></span></td>
+            <td><span id="ASKP_RSQN1"></span></td>
+            <td><span id="BIDP1"></span></td>
+            <td><span id="BIDP_RSQN1"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP2"></span></td>
+            <td><span id="ASKP_RSQN2"></span></td>
+            <td><span id="BIDP2"></span></td>
+            <td><span id="BIDP_RSQN2"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP3"></span></td>
+            <td><span id="ASKP_RSQN3"></span></td>
+            <td><span id="BIDP3"></span></td>
+            <td><span id="BIDP_RSQN3"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP4"></span></td>
+            <td><span id="ASKP_RSQN4"></span></td>
+            <td><span id="BIDP4"></span></td>
+            <td><span id="BIDP_RSQN4"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP5"></span></td>
+            <td><span id="ASKP_RSQN5"></span></td>
+            <td><span id="BIDP5"></span></td>
+            <td><span id="BIDP_RSQN5"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP6"></span></td>
+            <td><span id="ASKP_RSQN6"></span></td>
+            <td><span id="BIDP6"></span></td>
+            <td><span id="BIDP_RSQN6"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP7"></span></td>
+            <td><span id="ASKP_RSQN7"></span></td>
+            <td><span id="BIDP7"></span></td>
+            <td><span id="BIDP_RSQN7"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP8"></span></td>
+            <td><span id="ASKP_RSQN8"></span></td>
+            <td><span id="BIDP8"></span></td>
+            <td><span id="BIDP_RSQN8"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP9"></span></td>
+            <td><span id="ASKP_RSQN9"></span></td>
+            <td><span id="BIDP9"></span></td>
+            <td><span id="BIDP_RSQN9"></span></td>
+        </tr>
+        <tr>
+            <td><span id="ASKP10"></span></td>
+            <td><span id="ASKP_RSQN10"></span></td>
+            <td><span id="BIDP10"></span></td>
+            <td><span id="BIDP_RSQN10"></span></td>
+        </tr>
+    </table><br>
+    <table id="marketTable" border="1" style="display: none;">
+        <tr>
+            <td>체결시간:</td>
+            <td><span id="STCK_CNTG_HOUR"></span></td>
+        </tr>
+        <tr>
+            <td>현재가:</td>
+            <td><span id="STCK_PRPR"></span></td>
+        </tr>
+        <tr>
+            <td>전일 대비:</td>
+            <td><span id="PRDY_VRSS_SIGN"></span> <span id="PRDY_VRSS"></span> (<span id="PRDY_CTRT"></span>%)</td>
+        </tr>
+        <tr>
+            <td>시가:</td>
+            <td><span id="STCK_OPRC"></span></td>
+        </tr>
+        <tr>
+            <td>고가:</td>
+            <td><span id="STCK_HGPR"></span></td>
+        </tr>
+        <tr>
+            <td>저가:</td>
+            <td><span id="STCK_LWPR"></span></td>
+        </tr>
+        <tr>
+            <td>체결 거래량:</td>
+            <td><span id="CNTG_VOL"></span></td>
+        </tr>
+        <tr>
+            <td>누적 거래량:</td>
+            <td><span id="ACML_VOL"></span></td>
+        </tr>
+    </table>
+</body>
+</html>
