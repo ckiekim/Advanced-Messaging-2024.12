@@ -9,7 +9,7 @@
             const itemCode = document.getElementById('itemCode').value.trim();
             const displayPart = document.getElementById('displayPart');
 
-            fetch('/stock/getStockInfo?itemCode=' + itemCode)
+            fetch('/kis/getStockInfo?itemCode=' + itemCode)
                 .then(response => response.json())
                 .then(output => {
                     displayPart.innerHTML = `<pre>${JSON.stringify(output, null, 2)}</pre>`;

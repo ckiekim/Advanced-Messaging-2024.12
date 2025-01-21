@@ -24,8 +24,9 @@ public class KisService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json; charset=utf-8");
-//        headers.set("authorization", "Bearer " + getOAuthToken());
-        headers.set("authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjEwMDc5MjQ3LWVkYTUtNDRmNy1hZTYxLTdlODUyMjRmYjg2NiIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczNzQzODc5MywiaWF0IjoxNzM3MzUyMzkzLCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.r5ODVJP4wY-VFTC-kg1fipveitoqsfmtw9F0_EIOyQxCcZqc-5zFzxx-qni8C6KedFx3Vfz3UPWj4Vi9Yf08Pw");
+        String oAuthToken = getOAuthToken();
+        System.out.println(oAuthToken);
+        headers.set("authorization", "Bearer " + oAuthToken);
         headers.set("appkey", kisAppKey);
         headers.set("appsecret", kisSecretKey);
         headers.set("tr_id", "FHKST01010100");
