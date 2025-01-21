@@ -20,20 +20,32 @@ public class KisController {
 
     @GetMapping("/current")
     public String kisCurrent() {
-        return "kis/current";
+        return "kis/current-price";
+    }
+
+    @GetMapping("/getCurrentValue")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> getCurrentValue(@RequestParam String itemCode) {
+        Map<String, String> output = kisService.getCurrentValue(itemCode);
+        return ResponseEntity.ok(output);
+    }
+
+    @GetMapping("/info")
+    public String kisInfo() {
+        return "kis/stock-info";
     }
 
     @GetMapping("/getStockInfo")
     @ResponseBody
     public ResponseEntity<Map<String, String>> getStockInfo(@RequestParam String itemCode) {
-        Map<String, String> output = kisService.getCurrentValue(itemCode);
+        Map<String, String> output = kisService.getStockInfo(itemCode);
         return ResponseEntity.ok(output);
     }
 
-    @GetMapping("/real")
+    @GetMapping("/realtime")
     public String kisReal(HttpSession session, Model model) {
         String kisApprovalKey = (String) session.getAttribute("KIS_APPROVAL_KEY");
-//        kisApprovalKey = "ebf3784f-14a8-4179-a66b-d155078c73c0";
+        kisApprovalKey = "221ad40f-58aa-4687-b0cd-a380f614026d";
         if (kisApprovalKey == null || kisApprovalKey.isEmpty()) {
             kisApprovalKey = kisService.getKisApprovalKey();
             System.out.println("KIS_APPROVAL_KEY=" + kisApprovalKey);
@@ -41,6 +53,6 @@ public class KisController {
             session.setMaxInactiveInterval(24 * 60 * 60);
         }
         model.addAttribute("approvalKey", kisApprovalKey);
-        return "kis/real-market-price";
+        return "kis/realtime";
     }
 }
