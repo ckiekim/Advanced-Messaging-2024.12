@@ -21,13 +21,16 @@
         <main>
           <table class="table table-sm table-borderless">
             <tr>
-              <td style="width: 72%; text-align: left">
+              <td style="width: 52%; text-align: left">
                 <h3>
                   <strong>실시간 주식시세</strong>
                 </h3>
               </td>
               <td style="width: 20%">
-                <input class="form-control" type="text" id="itemCode" onkeypress="handleEnterKey(event)" placeholder="종목코드 입력">
+                <input class="form-control" type="text" id="itemName" onkeypress="handleNameEnterKey(event)" placeholder="종목명">
+              </td>
+              <td style="width: 20%">
+                <input class="form-control" type="text" id="itemCode" onkeypress="handleCodeEnterKey(event)" placeholder="종목코드">
               </td>
               <td style="width: 8%">
                 <button class="btn btn-outline-primary" onclick="explore()">조회</button>
@@ -91,15 +94,15 @@
             </tr>
           </table>
           <div class="row">
-            <div class="col-2"></div>
-            <div class="col-8">
+            <div class="col-3"></div>
+            <div class="col-6">
               <table class="table table-sm">
                 <tr>
-                  <td style="width: 10%; text-align: center;">비교</th>
-                  <td style="width: 20%; text-align: center;">매도잔량</th>
-                  <td style="width: 40%; text-align: center;">호가</th>
-                  <td style="width: 20%; text-align: center;">매수잔량</th>
-                  <td style="width: 10%; text-align: center;">비교</th>
+                  <td style="width: 12%; text-align: center;">비교</th>
+                  <td style="width: 22%; text-align: center;">매도잔량</th>
+                  <td style="width: 32%; text-align: center;">호가</th>
+                  <td style="width: 22%; text-align: center;">매수잔량</th>
+                  <td style="width: 12%; text-align: center;">비교</th>
                 </tr>
                 <tr>
                   <td style="text-align: right;"><span id="ASKP_RSQN5_comp"></span></td>
@@ -155,9 +158,28 @@
                 </tr>
               </table>
             </div>
-            <div class="col-2"></div>
+            <div class="col-3"></div>
           </div>
         </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- 종목 조회 모달 -->
+  <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="searchModalLabel">종목코드 조회</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!--  -->
+          <div id="stockCodeList" class="mb-3">
+            <!--  -->
+          </div>
+          
+        </div>
       </div>
     </div>
   </div>

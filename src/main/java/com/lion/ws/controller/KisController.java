@@ -1,6 +1,8 @@
 package com.lion.ws.controller;
 
+import com.lion.ws.entity.StockCodeName;
 import com.lion.ws.service.KisService;
+import com.lion.ws.service.StockCodeNameService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/kis")
 public class KisController {
     @Autowired private KisService kisService;
+    @Autowired private StockCodeNameService stockCodeNameService;
 
     @GetMapping("/current")
     public String kisCurrent() {
@@ -55,5 +59,19 @@ public class KisController {
         session.setAttribute("menu", "kis");
         model.addAttribute("approvalKey", kisApprovalKey);
         return "kis/realtime";
+    }
+
+    @GetMapping("/getCodeList")
+    @ResponseBody
+    public ResponseEntity<List<StockCodeName>> getCodeList(@RequestParam String stockName) {
+        List<StockCodeName> codeList = stockCodeNameService.findByNameContaining(stockName);
+        return ResponseEntity.ok(codeList);
+    }
+
+    @GetMapping("/initData")
+    public String initData() {
+        stockCodeNameService.initData("kosdaq_code.txt");
+        stockCodeNameService.initData("kospi_code.txt");
+        return "redirect:/kis/realtime";
     }
 }

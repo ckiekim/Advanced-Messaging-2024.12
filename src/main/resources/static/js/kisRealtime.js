@@ -1,12 +1,14 @@
-let socket, beforeClosingPrice;
-let previousPrice, firstTime;
+let socket, beforeClosingPrice, previousPrice;
 
-function explore() {
+async function explore() {
     previousPrice = new Map();
-    firstTime = true;
-    fetchStockInfo();
-    fetchCurrentPrice();
-    connect();
+    try {
+        await fetchStockInfo();
+        await fetchCurrentPrice();
+        connect();
+    } catch (error) {
+        console.error("Error in fetchCurrentPrice:", error);
+    }
 }
 
 function connect() {
@@ -102,20 +104,21 @@ function connect() {
                 setElementAndColorClass(document.getElementById('STCK_LWPR'), Number(realData[9]));
                 document.getElementById('CNTG_VOL').innerText = Number(realData[12]).toLocaleString();
                 document.getElementById('ACML_VOL').innerText = Number(realData[13]).toLocaleString();
+                compareElementSetColor(document.getElementById('compareBeforeDay'), realData[3]);
 
-                const compareElement = document.getElementById('compareBeforeDay');
-                const classValue = compareElement.classList;
-                compareElement.classList.remove(classValue[0]);
-                if (realData[3] === '1' || realData[3] === '2') {
-                    compareElement.classList.add('text-danger');
-                    document.getElementById('compareSign').innerText = '+';
-                } else if (realData[3] === '4' || realData[3] === '5') {
-                    compareElement.classList.add('text-primary');
-                    document.getElementById('compareSign').innerText = '-';
-                } else {
-                    compareElement.classList.add('text-body');
-                    document.getElementById('compareSign').innerText = '';
-                }
+                // const compareElement = document.getElementById('compareBeforeDay');
+                // const classValue = compareElement.classList;
+                // compareElement.classList.remove(classValue[0]);
+                // if (realData[3] === '1' || realData[3] === '2') {
+                //     compareElement.classList.add('text-danger');
+                //     document.getElementById('compareSign').innerText = '+';
+                // } else if (realData[3] === '4' || realData[3] === '5') {
+                //     compareElement.classList.add('text-primary');
+                //     document.getElementById('compareSign').innerText = '-';
+                // } else {
+                //     compareElement.classList.add('text-body');
+                //     document.getElementById('compareSign').innerText = '';
+                // }
             }
         } 
     }
@@ -129,42 +132,116 @@ function connect() {
     };
 }
 
-function handleEnterKey(event) {
+function handleCodeEnterKey(event) {
     if (event.key === 'Enter') {
         event.preventDefault();     // 줄바꿈 방지(기본 엔터 키 동작 방지)
         explore();
     }
 }
 
+function handleNameEnterKey(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();     // 줄바꿈 방지(기본 엔터 키 동작 방지)
+        search();
+    }
+}
+
 async function fetchStockInfo() {
     const itemCode = document.getElementById('itemCode').value.trim();
-    fetch('/kis/getStockInfo?itemCode=' + itemCode)
-        .then(response => response.json())
-        .then(output => {
-            document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
-            document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
-            beforeClosingPrice = Number(output.bfdy_clpr);
-            document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
-        })
-        .catch(error => console.error("Error loading data:", error));
+    try {
+        const response = await fetch('/kis/getStockInfo?itemCode=' + itemCode);
+        const output = await response.json();
+        document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
+        document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
+        beforeClosingPrice = Number(output.bfdy_clpr);
+        document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
+    } catch (error) {
+        console.error("Error in fetchStockInfo:", error);
     }
+}
     
-    async function fetchCurrentPrice() {
-        const itemCode = document.getElementById('itemCode').value.trim();
-        fetch('/kis/getCurrentPrice?itemCode=' + itemCode)
+async function fetchCurrentPrice() {
+    const itemCode = document.getElementById('itemCode').value.trim();
+    try {
+        const response = await fetch('/kis/getCurrentPrice?itemCode=' + itemCode);
+        const output = await response.json();
+        document.getElementById('stck_mxpr').innerText = Number(output.stck_mxpr).toLocaleString();
+        document.getElementById('stck_llam').innerText = Number(output.stck_llam).toLocaleString();
+        document.getElementById('w52_hgpr').innerText = Number(output.w52_hgpr).toLocaleString();
+        document.getElementById('w52_lwpr').innerText = Number(output.w52_lwpr).toLocaleString();
+        document.getElementById('crdt_able_yn').innerText = output.crdt_able_yn;
+    
+        setElementAndColorClass(document.getElementById('STCK_PRPR'), Number(output.stck_prpr));
+        document.getElementById('PRDY_VRSS_SIGN').innerHTML = 
+            output.prdy_vrss_sign === '2' ? '<i class="fa-solid fa-caret-up"></i>' : 
+                output.prdy_vrss_sign === '5' ? '<i class="fa-solid fa-caret-down"></i>' : '';
+        document.getElementById('PRDY_VRSS').innerText = Math.abs(Number(output.prdy_vrss)).toLocaleString();
+        document.getElementById('PRDY_CTRT').innerText = Math.abs(Number(output.prdy_ctrt));
+        setElementAndColorClass(document.getElementById('STCK_OPRC'), Number(output.stck_oprc));
+        setElementAndColorClass(document.getElementById('STCK_HGPR'), Number(output.stck_hgpr));
+        setElementAndColorClass(document.getElementById('STCK_LWPR'), Number(output.stck_lwpr));
+        document.getElementById('ACML_VOL').innerText = Number(output.acml_vol).toLocaleString();
+        compareElementSetColor(document.getElementById('compareBeforeDay'), output.prdy_vrss_sign);
+    } catch (error) {
+        console.error("Error in fetchCurrentPrice:", error);
+    }
+}
+
+function search() {
+    const itemName = document.getElementById('itemName').value.trim();
+    document.getElementById('itemName').value = '';
+
+    // 모달 열기
+    const searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
+    searchModal.show();
+
+    fetch('/kis/getCodeList?stockName=' + encodeURI(itemName))
         .then(response => response.json())
         .then(output => {
-            document.getElementById('stck_mxpr').innerText = Number(output.stck_mxpr).toLocaleString();
-            document.getElementById('stck_llam').innerText = Number(output.stck_llam).toLocaleString();
-            document.getElementById('w52_hgpr').innerText = Number(output.w52_hgpr).toLocaleString();
-            document.getElementById('w52_lwpr').innerText = Number(output.w52_lwpr).toLocaleString();
-            document.getElementById('crdt_able_yn').innerText = output.crdt_able_yn;
+            let html = '';
+            for (let item of output) {
+                html += `
+                    <div>
+                        <span style="cursor: pointer; " onclick="setItemCode('${item.code}')">
+                            ${item.code}
+                        </span>
+                        &nbsp;&nbsp;
+                        <span style="cursor: pointer; color: blue;" onclick="setItemCode('${item.code}')">
+                            ${item.name}
+                        </span>
+                    </div>`;
+            }
+            document.getElementById('stockCodeList').innerHTML = html;
         })
         .catch(error => console.error("Error loading data:", error));
 }
 
+function setItemCode(code) {
+    document.getElementById('itemCode').value = code;
+
+    // 모달 닫기
+    const searchModal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
+    searchModal.hide();
+}
+
+function compareElementSetColor(element, value) {
+    const classValue = element.classList;
+    element.classList.remove(classValue[0]);
+    if (value === '1' || value === '2') {
+        element.classList.add('text-danger');
+        document.getElementById('compareSign').innerText = '+';
+    } else if (value === '4' || value === '5') {
+        element.classList.add('text-primary');
+        document.getElementById('compareSign').innerText = '-';
+    } else {
+        element.classList.add('text-body');
+        document.getElementById('compareSign').innerText = '';
+    }
+}
+
 function setElementAndColorClass(element, price) {
     element.innerText = price.toLocaleString();
+    console.log('price=' + price + ', beforeClosingPrice=' + beforeClosingPrice);
     const classValue = element.classList;
     element.classList.remove(classValue[0]);
     if (price > beforeClosingPrice)
