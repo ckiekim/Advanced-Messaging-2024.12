@@ -23,10 +23,10 @@ public class KisController {
         return "kis/current-price";
     }
 
-    @GetMapping("/getCurrentValue")
+    @GetMapping("/getCurrentPrice")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getCurrentValue(@RequestParam String itemCode) {
-        Map<String, String> output = kisService.getCurrentValue(itemCode);
+    public ResponseEntity<Map<String, String>> getCurrentPrice(@RequestParam String itemCode) {
+        Map<String, String> output = kisService.getCurrentPrice(itemCode);
         return ResponseEntity.ok(output);
     }
 

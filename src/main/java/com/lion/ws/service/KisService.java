@@ -18,9 +18,9 @@ public class KisService {
     @Value("${kis.app.key}") private String kisAppKey;
     @Value("${kis.secret.key}") private String kisSecretKey;
     private static final String realDomainUrl = "https://openapi.koreainvestment.com:9443";
-    private String oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImRiOWI5MWI5LTMxZDAtNDRhYS04OWMwLWFhYzY2YWU0YjA5ZCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczNzUwNTMwNiwiaWF0IjoxNzM3NDE4OTA2LCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.UjMzEPVlJk8wY4ZL1ZX18RdyDFX6f4kjY_QRJENHQXuQGUp-BpM2ME_hGkwZgug2rPyjk2UR2HOxq8ZliIZzrw";
+    private String oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjIzODZhZGVlLWQzNjItNDg5Mi1hMTRlLWNlNWJiMDQzNzA0OCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczNzU5MjE2OSwiaWF0IjoxNzM3NTA1NzY5LCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.EXqPP70I3aj7UhZ10ZPPmLGJOaG6d8rNlwCcAyd_H0wBj2lEw8Z3Fu0j0kKx-kucU46zsNhue1ZiSkcCY-aajQ";
 
-    public Map<String, String> getCurrentValue(String itemCode) {
+    public Map<String, String> getCurrentPrice(String itemCode) {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();

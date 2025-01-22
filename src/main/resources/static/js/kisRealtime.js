@@ -1,7 +1,11 @@
 let socket, beforeClosingPrice;
+let previousPrice, firstTime;
 
 function explore() {
+    previousPrice = new Map();
+    firstTime = true;
     fetchStockInfo();
+    fetchCurrentPrice();
     connect();
 }
 
@@ -67,10 +71,23 @@ function connect() {
             const realData = event.data.split('^');
             if (event.data.includes('H0STASP0')) {              // 실시간 호가
                 for (let i=1; i<=5; i++) {
-                    document.getElementById('ASKP'+i).innerText = Number(realData[i + 2]).toLocaleString();
-                    document.getElementById('ASKP_RSQN'+i).innerText = Number(realData[20 + i + 2]).toLocaleString();
-                    document.getElementById('BIDP'+i).innerText = Number(realData[10 + i + 2]).toLocaleString();
-                    document.getElementById('BIDP_RSQN'+i).innerText = Number(realData[30 + i + 2]).toLocaleString();
+                    const askPrice = Number(realData[i + 2]);
+                    const bidPrice = Number(realData[10 + i + 2]);
+                    const askQuantity = Number(realData[20 + i + 2]);
+                    const bidQuantity = Number(realData[30 + i + 2]);
+                    setNominalElementAndColor(document.getElementById('ASKP'+i), askPrice);
+                    setNominalElementAndColor(document.getElementById('BIDP'+i), bidPrice);
+                    document.getElementById('ASKP_RSQN'+i).innerText = askQuantity.toLocaleString();
+                    document.getElementById('BIDP_RSQN'+i).innerText = bidQuantity.toLocaleString();
+                    
+                    const previousAskQuantity = previousPrice.get(askPrice) || 0;
+                    const previousBidQuantity = previousPrice.get(bidPrice) || 0;
+                    setCompareElementAndColor(document.getElementById('ASKP_RSQN'+i+'_comp'), askQuantity - previousAskQuantity);
+                    setCompareElementAndColor(document.getElementById('BIDP_RSQN'+i+'_comp'), bidQuantity - previousBidQuantity);
+                    // document.getElementById('ASKP_RSQN'+i+'_comp').innerText = (askQuantity - previousAskQuantity).toLocaleString();
+                    // document.getElementById('BIDP_RSQN'+i+'_comp').innerText = (bidQuantity - previousBidQuantity).toLocaleString();
+                    previousPrice.set(askPrice, askQuantity);
+                    previousPrice.set(bidPrice, bidQuantity);
                 }
             } else if (event.data.includes('H0STCNT0')) {       // 실시간 체결가
                 document.getElementById('STCK_CNTG_HOUR').innerText = realData[1].substring(0,2) + ':' + realData[1].substring(2,4) + ':' + realData[1].substring(4);
@@ -91,10 +108,10 @@ function connect() {
                 compareElement.classList.remove(classValue[0]);
                 if (realData[3] === '1' || realData[3] === '2') {
                     compareElement.classList.add('text-danger');
-                    document.getElementById('compareSign').innerText = '＋';
+                    document.getElementById('compareSign').innerText = '+';
                 } else if (realData[3] === '4' || realData[3] === '5') {
                     compareElement.classList.add('text-primary');
-                    document.getElementById('compareSign').innerText = '－';
+                    document.getElementById('compareSign').innerText = '-';
                 } else {
                     compareElement.classList.add('text-body');
                     document.getElementById('compareSign').innerText = '';
@@ -130,6 +147,20 @@ async function fetchStockInfo() {
             document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
         })
         .catch(error => console.error("Error loading data:", error));
+    }
+    
+    async function fetchCurrentPrice() {
+        const itemCode = document.getElementById('itemCode').value.trim();
+        fetch('/kis/getCurrentPrice?itemCode=' + itemCode)
+        .then(response => response.json())
+        .then(output => {
+            document.getElementById('stck_mxpr').innerText = Number(output.stck_mxpr).toLocaleString();
+            document.getElementById('stck_llam').innerText = Number(output.stck_llam).toLocaleString();
+            document.getElementById('w52_hgpr').innerText = Number(output.w52_hgpr).toLocaleString();
+            document.getElementById('w52_lwpr').innerText = Number(output.w52_lwpr).toLocaleString();
+            document.getElementById('crdt_able_yn').innerText = output.crdt_able_yn;
+        })
+        .catch(error => console.error("Error loading data:", error));
 }
 
 function setElementAndColorClass(element, price) {
@@ -142,4 +173,27 @@ function setElementAndColorClass(element, price) {
         element.classList.add('text-primary');
     else
         element.classList.add('text-body');
+}
+
+function setNominalElementAndColor(element, price) {
+    const pct = (((price - beforeClosingPrice) / beforeClosingPrice) * 100).toFixed(2);
+    element.innerText = price.toLocaleString() + ' (' + pct + '%)';
+    const classValue = element.classList;
+    element.classList.remove(classValue[0]);
+    if (price > beforeClosingPrice)
+        element.classList.add('text-danger');
+    else if (price < beforeClosingPrice)
+        element.classList.add('text-primary');
+    else
+        element.classList.add('text-body');
+}
+
+function setCompareElementAndColor(element, price) {
+    element.innerText = price !== 0 ? price.toLocaleString() : ' ';
+    const classValue = element.classList;
+    element.classList.remove(classValue[0]);
+    if (price > 0)
+        element.classList.add('text-danger');
+    else if (price < 0)
+        element.classList.add('text-primary');
 }

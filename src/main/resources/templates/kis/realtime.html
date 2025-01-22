@@ -36,8 +36,8 @@
           </table>
           <hr>
           <input type="hidden" id="approvalKey" th:value="${approvalKey}">
-          <div>
-            <span style="font-size: 1.2rem;" id="prdt_abrv_name"></span>
+          <div class="ms-2">
+            <span style="font-size: 1.4rem; font-weight: bold;" id="prdt_abrv_name"></span>
             <span class="ms-2" id="stck_shrn_iscd"></span>
             <span class="ms-2" id="excg_dvsn_cd"></span>
             <span class="ms-2" id="today"></span>
@@ -45,37 +45,48 @@
           </div>
           <table class="table">
             <tr>
-              <td rowspan="2" style="width: 40%;">
+              <td rowspan="2" style="width: 30%;">
                 <span id="STCK_PRPR" class="text-body" style="font-size: 2.4rem; font-weight: bold; vertical-align: middle;"></span>
               </td>
-              <td style="width: 30%;">
-                전일 <span id="bfdy_clpr"></span>
+              <td style="width: 20%;">
+                전일&nbsp;&nbsp;<span id="bfdy_clpr"></span>
               </td>
               <td style="width: 30%;">
-                고가 <span id="STCK_HGPR" class="text-body"></span>
+                고가&nbsp;&nbsp;<span id="STCK_HGPR" class="text-body"></span>
+                (상한가 <span id="stck_mxpr"></span>)
+              </td>
+              <td style="width: 20%;">
+                52주 고가&nbsp;&nbsp;<span id="w52_hgpr"></span>
               </td>
             </tr>
             <tr>
               <td>
-                시가 <span id="STCK_OPRC" class="text-body"></span>
+                시가&nbsp;&nbsp;<span id="STCK_OPRC" class="text-body"></span>    
               </td>
               <td>
-                저가 <span id="STCK_LWPR" class="text-body"></span>
+                저가&nbsp;&nbsp;<span id="STCK_LWPR" class="text-body"></span>
+                (하한가 <span id="stck_llam"></span>)
+              </td>
+              <td>
+                52주 저가&nbsp;&nbsp;<span id="w52_lwpr"></span>    
               </td>
             </tr>
             <tr>
               <td>
-                전일대비
+                전일대비&nbsp;&nbsp;
                 <span id="compareBeforeDay" class="text-body">
                   <span id="PRDY_VRSS_SIGN"></span><span id="PRDY_VRSS"></span>&nbsp;&nbsp;
                   <span id="compareSign"></span><span id="PRDY_CTRT"></span>%
                 </span>
               </td>
               <td>
-                체결량 <span id="CNTG_VOL"></span>
+                체결량&nbsp;&nbsp;<span id="CNTG_VOL"></span>
               </td>
               <td>
-                거래량 <span id="ACML_VOL"></span>
+                거래량&nbsp;&nbsp;<span id="ACML_VOL"></span>
+              </td>
+              <td>
+                신용&nbsp;&nbsp;<span id="crdt_able_yn"></span>    
               </td>
             </tr>
           </table>
@@ -84,63 +95,63 @@
             <div class="col-8">
               <table class="table table-sm">
                 <tr>
-                  <th style="width: 15%;">비교</th>
-                  <th style="width: 20%;">매도잔량</th>
-                  <th style="width: 30%;">호가</th>
-                  <th style="width: 20%;">매수잔량</th>
-                  <th style="width: 15%;">비교</th>
+                  <td style="width: 10%; text-align: center;">비교</th>
+                  <td style="width: 20%; text-align: center;">매도잔량</th>
+                  <td style="width: 40%; text-align: center;">호가</th>
+                  <td style="width: 20%; text-align: center;">매수잔량</th>
+                  <td style="width: 10%; text-align: center;">비교</th>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td style="text-align: right;"><span id="BIDP_RSQN5">3,000</span></td>
-                  <td style="text-align: center;"><span id="BIDP5">54,100</span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN5_comp"></span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN5"></span></td>
+                  <td style="text-align: center;"><span id="ASKP5">0</span></td>
                   <td colspan="2" rowspan="5"></td>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td style="text-align: right;"><span id="BIDP_RSQN4">3,000</span></td>
-                  <td style="text-align: center;"><span id="BIDP4">54,000</span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN4_comp"></span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN4"></span></td>
+                  <td style="text-align: center;"><span id="ASKP4">0</span></td>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td style="text-align: right;"><span id="BIDP_RSQN3">3,000</span></td>
-                  <td style="text-align: center;"><span id="BIDP3">53,900</span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN3_comp"></span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN3"></span></td>
+                  <td style="text-align: center;"><span id="ASKP3">0</span></td>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td style="text-align: right;"><span id="BIDP_RSQN2">3,000</span></td>
-                  <td style="text-align: center;"><span id="BIDP2">53,800</span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN2_comp"></span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN2"></span></td>
+                  <td style="text-align: center;"><span id="ASKP2">0</span></td>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td style="text-align: right;"><span id="BIDP_RSQN1">3,000</span></td>
-                  <td style="text-align: center;"><span id="BIDP1">53,700</span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN1_comp"></span></td>
+                  <td style="text-align: right;"><span id="ASKP_RSQN1"></span></td>
+                  <td style="text-align: center;"><span id="ASKP1">0</span></td>
                 </tr>
                 <tr>
                   <td colspan="2" rowspan="5"></td>
-                  <td style="text-align: center;"><span id="ASKP1">53,600</span></td>
-                  <td style="text-align: right;"><span id="ASKP_RSQN1">3,500</span></td>
-                  <td></td>
+                  <td style="text-align: center;"><span id="BIDP1">0</span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN1"></span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN1_comp"></span></td>
                 </tr>
                 <tr>
-                  <td style="text-align: center;"><span id="ASKP2">53,500</span></td>
-                  <td style="text-align: right;"><span id="ASKP_RSQN2">3,500</span></td>
-                  <td></td>
+                  <td style="text-align: center;"><span id="BIDP2">0</span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN2"></span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN2_comp"></span></td>
                 </tr>
                 <tr>
-                  <td style="text-align: center;"><span id="ASKP3">53,400</span></td>
-                  <td style="text-align: right;"><span id="ASKP_RSQN3">3,500</span></td>
-                  <td></td>
+                  <td style="text-align: center;"><span id="BIDP3">0</span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN3"></span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN3_comp"></span></td>
                 </tr>
                 <tr>
-                  <td style="text-align: center;"><span id="ASKP4">53,300</span></td>
-                  <td style="text-align: right;"><span id="ASKP_RSQN4">3,500</span></td>
-                  <td></td>
+                  <td style="text-align: center;"><span id="BIDP4">0</span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN4"></span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN4_comp"></span></td>
                 </tr>
                 <tr>
-                  <td style="text-align: center;"><span id="ASKP5">53,200</span></td>
-                  <td style="text-align: right;"><span id="ASKP_RSQN5">3,500</span></td>
-                  <td></td>
+                  <td style="text-align: center;"><span id="BIDP5">0</span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN5"></span></td>
+                  <td style="text-align: right;"><span id="BIDP_RSQN5_comp"></span></td>
                 </tr>
               </table>
             </div>
