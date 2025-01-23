@@ -174,7 +174,7 @@ async function fetchCurrentPrice() {
 }
 
 function search() {
-    const itemName = document.getElementById('itemName').value.trim();
+    const itemName = document.getElementById('itemName').value.trim().toUpperCase();
     document.getElementById('itemName').value = '';
 
     // 모달 열기
