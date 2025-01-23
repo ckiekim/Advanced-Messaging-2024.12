@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국투자증권 Open API</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        function getMinuteCandle() {
+            const itemCode = document.getElementById('itemCode').value.trim();
+            const displayPart1 = document.getElementById('displayPart1');
+            const displayPart2 = document.getElementById('displayPart2');
+
+            fetch('/kis/getMinuteCandle?itemCode=' + itemCode)
+                .then(response => response.json())
+                .then(output => {
+                    displayPart1.innerHTML = `<pre>${JSON.stringify(output.output1, null, 2)}</pre>`;
+                    // displayPart2.innerHTML = `<pre>${JSON.stringify(output.output2, null, 2)}</pre>`;
+                    const candlestickData = output.output2.map(entry => ({
+                        x: entry.stck_cntg_hour, 
+                        y: [entry.stck_oprc, entry.stck_hgpr, entry.stck_lwpr, entry.stck_prpr] // [Open, High, Low, Close] 값
+                    }));
+
+                    const options = {
+                        chart: {
+                            type: 'candlestick',
+                            height: 400
+                        },
+                        series: [{
+                            name: 'Prices by minute',
+                            data: candlestickData
+                        }],
+                        xaxis: {
+                            type: 'time',
+                            title: { text: 'Time' }
+                        },
+                        yaxis: {
+                            title: { text: '가격(원)' }
+                        },
+                        tooltip: {
+                            shared: false,
+                            custom: function({ seriesIndex, dataPointIndex, w }) {
+                                // 데이터 가져오기
+                                const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
+                                const time = dataPoint.x.substring(0,2) + ':' + dataPoint.x.substring(2,4) + ':' + dataPoint.x.substring(4);
+                                const [open, high, low, close] = dataPoint.y; // OHLC 값 추출
+
+                                // 툴팁 HTML 생성
+                                return `
+                                    <div style="padding: 10px; border: 1px solid #ccc; background: #fff;">
+                                        <div><strong>Date:</strong> ${time}</div>
+                                        <div><strong>Open:</strong> ${open}</div>
+                                        <div><strong>High:</strong> ${high}</div>
+                                        <div><strong>Low:</strong> ${low}</div>
+                                        <div><strong>Close:</strong> ${close}</div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    };
+
+                    const chart = new ApexCharts(document.querySelector("#candleChart"), options);
+                    chart.render();
+                })
+                .catch(error => console.error("Error loading data:", error));
+        }
+    </script>
+    <style>
+        input, button { padding: 3px; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <input type="text" id="itemCode" placeholder="종목 코드">
+    <button onclick="getMinuteCandle()">확인</button>
+    <hr>
+    <div id="displayPart1" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+    <!-- <div id="displayPart2" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div> -->
+    <div id="candleChart"></div>
+</body>
+</html>

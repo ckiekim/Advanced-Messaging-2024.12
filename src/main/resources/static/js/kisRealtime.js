@@ -105,20 +105,6 @@ function connect() {
                 document.getElementById('CNTG_VOL').innerText = Number(realData[12]).toLocaleString();
                 document.getElementById('ACML_VOL').innerText = Number(realData[13]).toLocaleString();
                 compareElementSetColor(document.getElementById('compareBeforeDay'), realData[3]);
-
-                // const compareElement = document.getElementById('compareBeforeDay');
-                // const classValue = compareElement.classList;
-                // compareElement.classList.remove(classValue[0]);
-                // if (realData[3] === '1' || realData[3] === '2') {
-                //     compareElement.classList.add('text-danger');
-                //     document.getElementById('compareSign').innerText = '+';
-                // } else if (realData[3] === '4' || realData[3] === '5') {
-                //     compareElement.classList.add('text-primary');
-                //     document.getElementById('compareSign').innerText = '-';
-                // } else {
-                //     compareElement.classList.add('text-body');
-                //     document.getElementById('compareSign').innerText = '';
-                // }
             }
         } 
     }
@@ -148,43 +134,74 @@ function handleNameEnterKey(event) {
 
 async function fetchStockInfo() {
     const itemCode = document.getElementById('itemCode').value.trim();
-    try {
-        const response = await fetch('/kis/getStockInfo?itemCode=' + itemCode);
-        const output = await response.json();
-        document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
-        document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
-        beforeClosingPrice = Number(output.bfdy_clpr);
-        document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
-    } catch (error) {
-        console.error("Error in fetchStockInfo:", error);
-    }
+    fetch('/kis/getStockInfo?itemCode=' + itemCode)
+        .then(response => response.json())
+        .then(output => {
+            document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
+            document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
+            beforeClosingPrice = Number(output.bfdy_clpr);
+            document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
+        })
+        .catch(error => console.error("Error in fetchStockInfo:", error));
+    // try {
+    //     const response = await fetch('/kis/getStockInfo?itemCode=' + itemCode);
+    //     const output = await response.json();
+    //     document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
+    //     document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
+    //     beforeClosingPrice = Number(output.bfdy_clpr);
+    //     document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
+    // } catch (error) {
+    //     console.error("Error in fetchStockInfo:", error);
+    // }
 }
     
 async function fetchCurrentPrice() {
     const itemCode = document.getElementById('itemCode').value.trim();
-    try {
-        const response = await fetch('/kis/getCurrentPrice?itemCode=' + itemCode);
-        const output = await response.json();
-        document.getElementById('stck_mxpr').innerText = Number(output.stck_mxpr).toLocaleString();
-        document.getElementById('stck_llam').innerText = Number(output.stck_llam).toLocaleString();
-        document.getElementById('w52_hgpr').innerText = Number(output.w52_hgpr).toLocaleString();
-        document.getElementById('w52_lwpr').innerText = Number(output.w52_lwpr).toLocaleString();
-        document.getElementById('crdt_able_yn').innerText = output.crdt_able_yn;
+    fetch('/kis/getCurrentPrice?itemCode=' + itemCode)
+        .then(response => response.json())
+        .then(output => {
+            document.getElementById('stck_mxpr').innerText = Number(output.stck_mxpr).toLocaleString();
+            document.getElementById('stck_llam').innerText = Number(output.stck_llam).toLocaleString();
+            document.getElementById('w52_hgpr').innerText = Number(output.w52_hgpr).toLocaleString();
+            document.getElementById('w52_lwpr').innerText = Number(output.w52_lwpr).toLocaleString();
+            document.getElementById('crdt_able_yn').innerText = output.crdt_able_yn;
+        
+            setElementAndColorClass(document.getElementById('STCK_PRPR'), Number(output.stck_prpr));
+            document.getElementById('PRDY_VRSS_SIGN').innerHTML = 
+                output.prdy_vrss_sign === '2' ? '<i class="fa-solid fa-caret-up"></i>' : 
+                    output.prdy_vrss_sign === '5' ? '<i class="fa-solid fa-caret-down"></i>' : '';
+            document.getElementById('PRDY_VRSS').innerText = Math.abs(Number(output.prdy_vrss)).toLocaleString();
+            document.getElementById('PRDY_CTRT').innerText = Math.abs(Number(output.prdy_ctrt));
+            setElementAndColorClass(document.getElementById('STCK_OPRC'), Number(output.stck_oprc));
+            setElementAndColorClass(document.getElementById('STCK_HGPR'), Number(output.stck_hgpr));
+            setElementAndColorClass(document.getElementById('STCK_LWPR'), Number(output.stck_lwpr));
+            document.getElementById('ACML_VOL').innerText = Number(output.acml_vol).toLocaleString();
+            compareElementSetColor(document.getElementById('compareBeforeDay'), output.prdy_vrss_sign);
+        })
+        .catch(error => console.error("Error in fetchCurrentPrice:", error));
+    // try {
+    //     const response = await fetch('/kis/getCurrentPrice?itemCode=' + itemCode);
+    //     const output = await response.json();
+    //     document.getElementById('stck_mxpr').innerText = Number(output.stck_mxpr).toLocaleString();
+    //     document.getElementById('stck_llam').innerText = Number(output.stck_llam).toLocaleString();
+    //     document.getElementById('w52_hgpr').innerText = Number(output.w52_hgpr).toLocaleString();
+    //     document.getElementById('w52_lwpr').innerText = Number(output.w52_lwpr).toLocaleString();
+    //     document.getElementById('crdt_able_yn').innerText = output.crdt_able_yn;
     
-        setElementAndColorClass(document.getElementById('STCK_PRPR'), Number(output.stck_prpr));
-        document.getElementById('PRDY_VRSS_SIGN').innerHTML = 
-            output.prdy_vrss_sign === '2' ? '<i class="fa-solid fa-caret-up"></i>' : 
-                output.prdy_vrss_sign === '5' ? '<i class="fa-solid fa-caret-down"></i>' : '';
-        document.getElementById('PRDY_VRSS').innerText = Math.abs(Number(output.prdy_vrss)).toLocaleString();
-        document.getElementById('PRDY_CTRT').innerText = Math.abs(Number(output.prdy_ctrt));
-        setElementAndColorClass(document.getElementById('STCK_OPRC'), Number(output.stck_oprc));
-        setElementAndColorClass(document.getElementById('STCK_HGPR'), Number(output.stck_hgpr));
-        setElementAndColorClass(document.getElementById('STCK_LWPR'), Number(output.stck_lwpr));
-        document.getElementById('ACML_VOL').innerText = Number(output.acml_vol).toLocaleString();
-        compareElementSetColor(document.getElementById('compareBeforeDay'), output.prdy_vrss_sign);
-    } catch (error) {
-        console.error("Error in fetchCurrentPrice:", error);
-    }
+    //     setElementAndColorClass(document.getElementById('STCK_PRPR'), Number(output.stck_prpr));
+    //     document.getElementById('PRDY_VRSS_SIGN').innerHTML = 
+    //         output.prdy_vrss_sign === '2' ? '<i class="fa-solid fa-caret-up"></i>' : 
+    //             output.prdy_vrss_sign === '5' ? '<i class="fa-solid fa-caret-down"></i>' : '';
+    //     document.getElementById('PRDY_VRSS').innerText = Math.abs(Number(output.prdy_vrss)).toLocaleString();
+    //     document.getElementById('PRDY_CTRT').innerText = Math.abs(Number(output.prdy_ctrt));
+    //     setElementAndColorClass(document.getElementById('STCK_OPRC'), Number(output.stck_oprc));
+    //     setElementAndColorClass(document.getElementById('STCK_HGPR'), Number(output.stck_hgpr));
+    //     setElementAndColorClass(document.getElementById('STCK_LWPR'), Number(output.stck_lwpr));
+    //     document.getElementById('ACML_VOL').innerText = Number(output.acml_vol).toLocaleString();
+    //     compareElementSetColor(document.getElementById('compareBeforeDay'), output.prdy_vrss_sign);
+    // } catch (error) {
+    //     console.error("Error in fetchCurrentPrice:", error);
+    // }
 }
 
 function search() {

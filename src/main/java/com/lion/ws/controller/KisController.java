@@ -29,8 +29,9 @@ public class KisController {
 
     @GetMapping("/getCurrentPrice")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getCurrentPrice(@RequestParam String itemCode) {
-        Map<String, String> output = kisService.getCurrentPrice(itemCode);
+    public ResponseEntity<Map<String, String>> getCurrentPrice(@RequestParam String itemCode, HttpSession session) {
+        String oAuthToken = kisService.handleOAuthToken(session);
+        Map<String, String> output = kisService.getCurrentPrice(itemCode, oAuthToken);
         return ResponseEntity.ok(output);
     }
 
@@ -41,8 +42,9 @@ public class KisController {
 
     @GetMapping("/getStockInfo")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getStockInfo(@RequestParam String itemCode) {
-        Map<String, String> output = kisService.getStockInfo(itemCode);
+    public ResponseEntity<Map<String, String>> getStockInfo(@RequestParam String itemCode, HttpSession session) {
+        String oAuthToken = kisService.handleOAuthToken(session);
+        Map<String, String> output = kisService.getStockInfo(itemCode, oAuthToken);
         return ResponseEntity.ok(output);
     }
 
@@ -66,6 +68,19 @@ public class KisController {
     public ResponseEntity<List<StockCodeName>> getCodeList(@RequestParam String stockName) {
         List<StockCodeName> codeList = stockCodeNameService.findByNameContaining(stockName);
         return ResponseEntity.ok(codeList);
+    }
+
+    @GetMapping("/minute")
+    public String minute() {
+        return "kis/minute-candle";
+    }
+
+    @GetMapping("/getMinuteCandle")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getMinuteCandle(@RequestParam String itemCode, HttpSession session) {
+        String oAuthToken = kisService.handleOAuthToken(session);
+        Map<String, Object> output = kisService.getMinuteCandle(itemCode, oAuthToken);
+        return ResponseEntity.ok(output);
     }
 
     @GetMapping("/initData")
