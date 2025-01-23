@@ -6,6 +6,7 @@ async function explore() {
         await fetchStockInfo();
         await fetchCurrentPrice();
         connect();
+        drawCandleChart();
     } catch (error) {
         console.error("Error in fetchCurrentPrice:", error);
     }
@@ -134,25 +135,16 @@ function handleNameEnterKey(event) {
 
 async function fetchStockInfo() {
     const itemCode = document.getElementById('itemCode').value.trim();
-    fetch('/kis/getStockInfo?itemCode=' + itemCode)
-        .then(response => response.json())
-        .then(output => {
-            document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
-            document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
-            beforeClosingPrice = Number(output.bfdy_clpr);
-            document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
-        })
-        .catch(error => console.error("Error in fetchStockInfo:", error));
-    // try {
-    //     const response = await fetch('/kis/getStockInfo?itemCode=' + itemCode);
-    //     const output = await response.json();
-    //     document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
-    //     document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
-    //     beforeClosingPrice = Number(output.bfdy_clpr);
-    //     document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
-    // } catch (error) {
-    //     console.error("Error in fetchStockInfo:", error);
-    // }
+    try {
+        const response = await fetch('/kis/getStockInfo?itemCode=' + itemCode);
+        const output = await response.json();
+        document.getElementById('prdt_abrv_name').innerText = output.prdt_abrv_name;
+        document.getElementById('excg_dvsn_cd').innerText = output.excg_dvsn_cd === '02' ? '코스피' : '코스닥';
+        beforeClosingPrice = Number(output.bfdy_clpr);
+        document.getElementById('bfdy_clpr').innerText = beforeClosingPrice.toLocaleString();
+    } catch (error) {
+        console.error("Error in fetchStockInfo:", error);
+    }
 }
     
 async function fetchCurrentPrice() {
@@ -179,29 +171,6 @@ async function fetchCurrentPrice() {
             compareElementSetColor(document.getElementById('compareBeforeDay'), output.prdy_vrss_sign);
         })
         .catch(error => console.error("Error in fetchCurrentPrice:", error));
-    // try {
-    //     const response = await fetch('/kis/getCurrentPrice?itemCode=' + itemCode);
-    //     const output = await response.json();
-    //     document.getElementById('stck_mxpr').innerText = Number(output.stck_mxpr).toLocaleString();
-    //     document.getElementById('stck_llam').innerText = Number(output.stck_llam).toLocaleString();
-    //     document.getElementById('w52_hgpr').innerText = Number(output.w52_hgpr).toLocaleString();
-    //     document.getElementById('w52_lwpr').innerText = Number(output.w52_lwpr).toLocaleString();
-    //     document.getElementById('crdt_able_yn').innerText = output.crdt_able_yn;
-    
-    //     setElementAndColorClass(document.getElementById('STCK_PRPR'), Number(output.stck_prpr));
-    //     document.getElementById('PRDY_VRSS_SIGN').innerHTML = 
-    //         output.prdy_vrss_sign === '2' ? '<i class="fa-solid fa-caret-up"></i>' : 
-    //             output.prdy_vrss_sign === '5' ? '<i class="fa-solid fa-caret-down"></i>' : '';
-    //     document.getElementById('PRDY_VRSS').innerText = Math.abs(Number(output.prdy_vrss)).toLocaleString();
-    //     document.getElementById('PRDY_CTRT').innerText = Math.abs(Number(output.prdy_ctrt));
-    //     setElementAndColorClass(document.getElementById('STCK_OPRC'), Number(output.stck_oprc));
-    //     setElementAndColorClass(document.getElementById('STCK_HGPR'), Number(output.stck_hgpr));
-    //     setElementAndColorClass(document.getElementById('STCK_LWPR'), Number(output.stck_lwpr));
-    //     document.getElementById('ACML_VOL').innerText = Number(output.acml_vol).toLocaleString();
-    //     compareElementSetColor(document.getElementById('compareBeforeDay'), output.prdy_vrss_sign);
-    // } catch (error) {
-    //     console.error("Error in fetchCurrentPrice:", error);
-    // }
 }
 
 function search() {
@@ -290,4 +259,55 @@ function setCompareElementAndColor(element, price) {
         element.classList.add('text-danger');
     else if (price < 0)
         element.classList.add('text-primary');
+}
+
+function drawCandleChart() {
+    const itemCode = document.getElementById('itemCode').value.trim();
+
+    fetch('/kis/getMinuteCandle?itemCode=' + itemCode)
+        .then(response => response.json())
+        .then(output => {
+            const candlestickData = output.output2.map(entry => ({
+                x: entry.stck_cntg_hour, 
+                y: [entry.stck_oprc, entry.stck_hgpr, entry.stck_lwpr, entry.stck_prpr] // [Open, High, Low, Close] 값
+            }));
+
+            const options = {
+                chart: {
+                    type: 'candlestick',
+                    height: '100%', width: '100%'
+                },
+                series: [{
+                    name: 'Prices by minute',
+                    data: candlestickData
+                }],
+                xaxis: {
+                    labels: { show: false }
+                },
+                tooltip: {
+                    shared: false,
+                    custom: function({ seriesIndex, dataPointIndex, w }) {
+                        // 데이터 가져오기
+                        const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
+                        const time = dataPoint.x.substring(0,2) + ':' + dataPoint.x.substring(2,4) + ':' + dataPoint.x.substring(4);
+                        const [open, high, low, close] = dataPoint.y; // OHLC 값 추출
+
+                        // 툴팁 HTML 생성
+                        return `
+                            <div style="padding: 10px; border: 1px solid #ccc; background: #fff;">
+                                <div><strong>시간:</strong> ${time}</div>
+                                <div><strong>시가:</strong> ${Number(open).toLocaleString()}</div>
+                                <div><strong>고가:</strong> ${Number(high).toLocaleString()}</div>
+                                <div><strong>저가:</strong> ${Number(low).toLocaleString()}</div>
+                                <div><strong>종가:</strong> ${Number(close).toLocaleString()}</div>
+                            </div>
+                        `;
+                    }
+                }
+            };
+            document.getElementById('candleChart').innerHTML = '';
+            const chart = new ApexCharts(document.getElementById('candleChart'), options);
+            chart.render();
+        })
+        .catch(error => console.error("Error loading data:", error));
 }

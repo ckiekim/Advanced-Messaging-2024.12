@@ -79,7 +79,7 @@ public class KisController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getMinuteCandle(@RequestParam String itemCode, HttpSession session) {
         String oAuthToken = kisService.handleOAuthToken(session);
-        Map<String, Object> output = kisService.getMinuteCandle(itemCode, oAuthToken);
+        Map<String, Object> output = kisService.getMinuteCandleTillNow(itemCode, oAuthToken);
         return ResponseEntity.ok(output);
     }
 

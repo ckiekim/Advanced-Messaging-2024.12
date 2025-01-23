@@ -18,6 +18,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -172,7 +175,7 @@ public class KisService {
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(headers);
         String url = realDomainUrl + "/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice" +
                 "?FID_ETC_CLS_CODE=&FID_COND_MRKT_DIV_CODE=J&FID_INPUT_ISCD=" + itemCode +
-                "&FID_INPUT_HOUR_1=110000&FID_PW_DATA_INCU_YN=N";
+                "&FID_INPUT_HOUR_1=090000&FID_PW_DATA_INCU_YN=N";
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
@@ -191,6 +194,68 @@ public class KisService {
             Map<String, Object> output = new LinkedHashMap<>();
             output.put("output1", output1);
             output.put("output2", output2);
+            return output;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Map<String, Object> getMinuteCandleTillNow(String itemCode, String oAuthToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json; charset=utf-8");
+        headers.set("authorization", "Bearer " + oAuthToken);
+        headers.set("appkey", kisAppKey);
+        headers.set("appsecret", kisSecretKey);
+        headers.set("tr_id", "FHKST03010200");
+        headers.set("custtype", "P");
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(headers);
+
+        // 개장시간 09:00 부터 현재 또는 폐장시간 15:30 까지 30분 단위로 호출
+        // output2 에는 09:00 부터 현재까지 1분 단위의 데이터가 있게
+        // time 값을 090000, 093000, 100000, ... 현재 시분초까지 변경하며 호출
+        List<Map<String, String>> allTimeData = new ArrayList<>();
+        Map<String, String> output1 = null;
+        LocalTime endTime = LocalTime.of(15, 30);
+
+        try {
+            LocalTime startTime = LocalTime.of(9, 29);
+            LocalTime currentTime = LocalTime.now();
+
+            while (true) {
+                String time = startTime.format(DateTimeFormatter.ofPattern("HHmmss"));
+                String url = realDomainUrl + "/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice" +
+                        "?FID_ETC_CLS_CODE=&FID_COND_MRKT_DIV_CODE=J&FID_INPUT_ISCD=" + itemCode +
+                        "&FID_INPUT_HOUR_1=" + time + "&FID_PW_DATA_INCU_YN=N";
+
+                ResponseEntity<String> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        String.class
+                );
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                output1 = objectMapper.convertValue(jsonNode.get("output1"), Map.class);
+                List<Map<String, String>> output2 = objectMapper.convertValue(jsonNode.get("output2"),
+                        new TypeReference<List<Map<String, String>>>() {});
+                Collections.reverse(output2); // Reverse the list order
+
+                if (startTime.isAfter(currentTime) || startTime.isAfter(endTime)) {
+                    LocalTime effectiveTime = currentTime.isBefore(endTime) ? currentTime : endTime;
+                    int diff = (int) Duration.between(startTime, effectiveTime.plusMinutes(30)).toMinutes();
+                    for (int i = 0; i < diff; i++)
+                        allTimeData.add(output2.get(i));
+                    break;
+                } else {
+                    allTimeData.addAll(output2);
+                }
+                startTime = startTime.plusMinutes(30);
+            }
+            Map<String, Object> output = new LinkedHashMap<>();
+            output.put("output1", output1);
+            output.put("output2", allTimeData);
             return output;
         } catch (Exception e) {
             e.printStackTrace();

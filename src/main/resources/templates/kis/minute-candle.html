@@ -24,18 +24,14 @@
                     const options = {
                         chart: {
                             type: 'candlestick',
-                            height: 400
+                            height: '100%', width: '100%'
                         },
                         series: [{
                             name: 'Prices by minute',
                             data: candlestickData
                         }],
                         xaxis: {
-                            type: 'time',
-                            title: { text: 'Time' }
-                        },
-                        yaxis: {
-                            title: { text: '가격(원)' }
+                            labels: { show: false }
                         },
                         tooltip: {
                             shared: false,
@@ -48,11 +44,11 @@
                                 // 툴팁 HTML 생성
                                 return `
                                     <div style="padding: 10px; border: 1px solid #ccc; background: #fff;">
-                                        <div><strong>Date:</strong> ${time}</div>
-                                        <div><strong>Open:</strong> ${open}</div>
-                                        <div><strong>High:</strong> ${high}</div>
-                                        <div><strong>Low:</strong> ${low}</div>
-                                        <div><strong>Close:</strong> ${close}</div>
+                                        <div><strong>시간:</strong> ${time}</div>
+                                        <div><strong>시가:</strong> ${Number(open).toLocaleString()}</div>
+                                        <div><strong>고가:</strong> ${Number(high).toLocaleString()}</div>
+                                        <div><strong>저가:</strong> ${Number(low).toLocaleString()}</div>
+                                        <div><strong>종가:</strong> ${Number(close).toLocaleString()}</div>
                                     </div>
                                 `;
                             }
@@ -64,17 +60,25 @@
                 })
                 .catch(error => console.error("Error loading data:", error));
         }
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();     // 줄바꿈 방지(기본 엔터 키 동작 방지)
+                getMinuteCandle();
+            }
+        }
     </script>
     <style>
         input, button { padding: 3px; }
     </style>
 </head>
 <body style="margin: 40px;">
-    <input type="text" id="itemCode" placeholder="종목 코드">
+    <input type="text" id="itemCode" onkeypress="handleEnterKey(event)" placeholder="종목 코드" >
     <button onclick="getMinuteCandle()">확인</button>
     <hr>
     <div id="displayPart1" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
     <!-- <div id="displayPart2" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div> -->
-    <div id="candleChart"></div>
+    <div style="width: 500px; height: 400px;">
+        <div id="candleChart"></div>
+    </div>
 </body>
 </html>
