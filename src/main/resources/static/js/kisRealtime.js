@@ -6,7 +6,7 @@ async function explore() {
         await fetchStockInfo();
         await fetchCurrentPrice();
         connect();
-        drawCandleChart();
+        drawDailyCandleChart();
     } catch (error) {
         console.error("Error in fetchCurrentPrice:", error);
     }
@@ -280,6 +280,14 @@ function drawMinuteCandleChart() {
                     name: 'Prices by minute',
                     data: candlestickData
                 }],
+                plotOptions: {
+                    candlestick: {
+                        colors: {
+                            upward: '#dc3545',  // 상승 시 bootstrap danger color
+                            downward: '#0d6efd' // 하락 시 bootstrap primary color
+                        }
+                    }
+                },
                 xaxis: {
                     labels: { show: false }
                 },
@@ -311,7 +319,7 @@ function drawMinuteCandleChart() {
         .catch(error => console.error("Error loading data:", error));
 }
 
-function drawCandleChart() {
+function drawDailyCandleChart() {
     const itemCode = document.getElementById('itemCode').value.trim();
 
     fetch('/kis/getDailyCandle?itemCode=' + itemCode)
@@ -334,8 +342,8 @@ function drawCandleChart() {
                 plotOptions: {
                     candlestick: {
                         colors: {
-                            upward: '#dc3545',  // 상승 시 danger
-                            downward: '#0d6efd' // 하락 시 primary
+                            upward: '#dc3545',  // 상승 시 bootstrap danger color
+                            downward: '#0d6efd' // 하락 시 bootstrap primary color
                         }
                     }
                 },
