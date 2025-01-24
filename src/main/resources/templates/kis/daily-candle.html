@@ -6,19 +6,19 @@
     <title>한국투자증권 Open API</title>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
-        function getMinuteCandle() {
+        function getDailyCandle() {
             const itemCode = document.getElementById('itemCode').value.trim();
             const displayPart1 = document.getElementById('displayPart1');
-            const displayPart2 = document.getElementById('displayPart2');
+            // const displayPart2 = document.getElementById('displayPart2');
 
-            fetch('/kis/getMinuteCandle?itemCode=' + itemCode)
+            fetch('/kis/getDailyCandle?itemCode=' + itemCode)
                 .then(response => response.json())
                 .then(output => {
                     displayPart1.innerHTML = `<pre>${JSON.stringify(output.output1, null, 2)}</pre>`;
                     // displayPart2.innerHTML = `<pre>${JSON.stringify(output.output2, null, 2)}</pre>`;
                     const candlestickData = output.output2.map(entry => ({
-                        x: entry.stck_cntg_hour, 
-                        y: [entry.stck_oprc, entry.stck_hgpr, entry.stck_lwpr, entry.stck_prpr] // [Open, High, Low, Close] 값
+                        x: entry.stck_bsop_date, 
+                        y: [entry.stck_oprc, entry.stck_hgpr, entry.stck_lwpr, entry.stck_clpr] // [Open, High, Low, Close] 값
                     }));
 
                     const options = {
@@ -27,7 +27,7 @@
                             height: '100%', width: '100%'
                         },
                         series: [{
-                            name: 'Prices by minute',
+                            name: 'Dayly prices',
                             data: candlestickData
                         }],
                         xaxis: {
@@ -38,13 +38,13 @@
                             custom: function({ seriesIndex, dataPointIndex, w }) {
                                 // 데이터 가져오기
                                 const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
-                                const time = dataPoint.x.substring(0,2) + ':' + dataPoint.x.substring(2,4) + ':' + dataPoint.x.substring(4);
+                                const date = dataPoint.x.substring(0,4) + '-' + dataPoint.x.substring(4,6) + '-' + dataPoint.x.substring(6);
                                 const [open, high, low, close] = dataPoint.y; // OHLC 값 추출
 
                                 // 툴팁 HTML 생성
                                 return `
                                     <div style="padding: 10px; border: 1px solid #ccc; background: #fff;">
-                                        <div><strong>시간:</strong> ${time}</div>
+                                        <div><strong>날짜:</strong> ${date}</div>
                                         <div><strong>시가:</strong> ${Number(open).toLocaleString()}</div>
                                         <div><strong>고가:</strong> ${Number(high).toLocaleString()}</div>
                                         <div><strong>저가:</strong> ${Number(low).toLocaleString()}</div>
@@ -63,7 +63,7 @@
         function handleEnterKey(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();     // 줄바꿈 방지(기본 엔터 키 동작 방지)
-                getMinuteCandle();
+                getDailyCandle();
             }
         }
     </script>
@@ -73,7 +73,7 @@
 </head>
 <body style="margin: 40px;">
     <input type="text" id="itemCode" onkeypress="handleEnterKey(event)" placeholder="종목 코드" >
-    <button onclick="getMinuteCandle()">확인</button>
+    <button onclick="getDailyCandle()">확인</button>
     <hr>
     <div id="displayPart1" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
     <!-- <div id="displayPart2" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div> -->

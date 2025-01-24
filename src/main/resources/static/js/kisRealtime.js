@@ -261,9 +261,8 @@ function setCompareElementAndColor(element, price) {
         element.classList.add('text-primary');
 }
 
-function drawCandleChart() {
+function drawMinuteCandleChart() {
     const itemCode = document.getElementById('itemCode').value.trim();
-
     fetch('/kis/getMinuteCandle?itemCode=' + itemCode)
         .then(response => response.json())
         .then(output => {
@@ -296,6 +295,65 @@ function drawCandleChart() {
                         return `
                             <div style="padding: 10px; border: 1px solid #ccc; background: #fff;">
                                 <div><strong>시간:</strong> ${time}</div>
+                                <div><strong>시가:</strong> ${Number(open).toLocaleString()}</div>
+                                <div><strong>고가:</strong> ${Number(high).toLocaleString()}</div>
+                                <div><strong>저가:</strong> ${Number(low).toLocaleString()}</div>
+                                <div><strong>종가:</strong> ${Number(close).toLocaleString()}</div>
+                            </div>
+                        `;
+                    }
+                }
+            };
+            document.getElementById('candleChart').innerHTML = '';
+            const chart = new ApexCharts(document.getElementById('candleChart'), options);
+            chart.render();
+        })
+        .catch(error => console.error("Error loading data:", error));
+}
+
+function drawCandleChart() {
+    const itemCode = document.getElementById('itemCode').value.trim();
+
+    fetch('/kis/getDailyCandle?itemCode=' + itemCode)
+        .then(response => response.json())
+        .then(output => {
+            const candlestickData = output.output2.map(entry => ({
+                x: entry.stck_bsop_date, 
+                y: [entry.stck_oprc, entry.stck_hgpr, entry.stck_lwpr, entry.stck_clpr] // [Open, High, Low, Close] 값
+            }));
+
+            const options = {
+                chart: {
+                    type: 'candlestick',
+                    height: '100%', width: '100%'
+                },
+                series: [{
+                    name: 'Dayly prices',
+                    data: candlestickData
+                }],
+                plotOptions: {
+                    candlestick: {
+                        colors: {
+                            upward: '#dc3545',  // 상승 시 danger
+                            downward: '#0d6efd' // 하락 시 primary
+                        }
+                    }
+                },
+                xaxis: {
+                    labels: { show: false }
+                },
+                tooltip: {
+                    shared: false,
+                    custom: function({ seriesIndex, dataPointIndex, w }) {
+                        // 데이터 가져오기
+                        const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
+                        const date = dataPoint.x.substring(0,4) + '-' + dataPoint.x.substring(4,6) + '-' + dataPoint.x.substring(6);
+                        const [open, high, low, close] = dataPoint.y; // OHLC 값 추출
+
+                        // 툴팁 HTML 생성
+                        return `
+                            <div style="padding: 10px; border: 1px solid #ccc; background: #fff;">
+                                <div><strong>날짜:</strong> ${date}</div>
                                 <div><strong>시가:</strong> ${Number(open).toLocaleString()}</div>
                                 <div><strong>고가:</strong> ${Number(high).toLocaleString()}</div>
                                 <div><strong>저가:</strong> ${Number(low).toLocaleString()}</div>

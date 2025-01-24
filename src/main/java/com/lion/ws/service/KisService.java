@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -121,6 +122,18 @@ public class KisService {
         return null;
     }
 
+    public String handleOAuthToken(HttpSession session) {
+        String oAuthToken = (String) session.getAttribute("OAuthToken");
+        oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjgzYjU5NWM5LTYwYWItNDBjNS04ODBhLThjMzdhZTBlMzYzNSIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczNzc2MTk3NywiaWF0IjoxNzM3Njc1NTc3LCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.7ces81N3vb2XdrES914mruwzTOB2n5SfgNBQm0GNKdxpRv0L4fJ-Zu8akih49HhwTtGG_RHEZbaWgaehOcKKdg";
+        if (oAuthToken == null || oAuthToken.isEmpty()) {
+            oAuthToken = getOAuthToken();
+            System.out.println("OAuthToken=" + oAuthToken);
+            session.setAttribute("OAuthToken", oAuthToken);
+            session.setMaxInactiveInterval(24 * 60 * 60);
+        }
+        return oAuthToken;
+    }
+
     private String getOAuthToken() {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -151,31 +164,23 @@ public class KisService {
         return null;
     }
 
-    public String handleOAuthToken(HttpSession session) {
-        String oAuthToken = (String) session.getAttribute("OAuthToken");
-        oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImQxZTA3OTQ1LTFkZTktNDcwMi1iNTA2LTBhYTM3OGZhMWQ3ZCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczNzY3OTM0OCwiaWF0IjoxNzM3NTkyOTQ4LCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.BKRS6lmBzJGbLMTnoCWaW1F_1_IFal42oIZp9amRL1rjCawjTDLMVbm7N1cX-z3lN-Duc4I9-csh8Pgc8UVBvA";
-        if (oAuthToken == null || oAuthToken.isEmpty()) {
-            oAuthToken = getOAuthToken();
-            System.out.println("OAuthToken=" + oAuthToken);
-            session.setAttribute("OAuthToken", oAuthToken);
-            session.setMaxInactiveInterval(24 * 60 * 60);
-        }
-        return oAuthToken;
-    }
-
-    public Map<String, Object> getMinuteCandle(String itemCode, String oAuthToken) {
+    public Map<String, Object> getDailyCandle(String itemCode, String oAuthToken) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json; charset=utf-8");
         headers.set("authorization", "Bearer " + oAuthToken);
         headers.set("appkey", kisAppKey);
         headers.set("appsecret", kisSecretKey);
-        headers.set("tr_id", "FHKST03010200");
+        headers.set("tr_id", "FHKST03010100");
         headers.set("custtype", "P");
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(headers);
-        String url = realDomainUrl + "/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice" +
-                "?FID_ETC_CLS_CODE=&FID_COND_MRKT_DIV_CODE=J&FID_INPUT_ISCD=" + itemCode +
-                "&FID_INPUT_HOUR_1=090000&FID_PW_DATA_INCU_YN=N";
+        LocalDate endDate = LocalDate.now().minusDays(1L);
+        LocalDate startDate = endDate.minusYears(1L);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String url = realDomainUrl + "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice" +
+                "?FID_COND_MRKT_DIV_CODE=J&FID_INPUT_ISCD=" + itemCode +
+                "&FID_INPUT_DATE_1=" + startDate.format(formatter) + "&FID_INPUT_DATE_2=" + endDate.format(formatter) +
+                "&FID_PERIOD_DIV_CODE=D&FID_ORG_ADJ_PRC=0";
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(

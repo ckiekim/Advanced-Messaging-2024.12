@@ -83,6 +83,19 @@ public class KisController {
         return ResponseEntity.ok(output);
     }
 
+    @GetMapping("/daily")
+    public String daily() {
+        return "kis/daily-candle";
+    }
+
+    @GetMapping("/getDailyCandle")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDailyCandle(@RequestParam String itemCode, HttpSession session) {
+        String oAuthToken = kisService.handleOAuthToken(session);
+        Map<String, Object> output = kisService.getDailyCandle(itemCode, oAuthToken);
+        return ResponseEntity.ok(output);
+    }
+
     @GetMapping("/initData")
     public String initData() {
         stockCodeNameService.initData("kosdaq_code.txt");
