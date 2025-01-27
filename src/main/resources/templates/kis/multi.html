@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국투자증권 Open API</title>
+    <script>
+        function getStockInfo() {
+            const itemCode1 = document.getElementById('itemCode1').value.trim();
+            const itemCode2 = document.getElementById('itemCode2').value.trim();
+            const itemCode3 = document.getElementById('itemCode3').value.trim();
+            const displayPart1 = document.getElementById('displayPart1');
+            const displayPart2 = document.getElementById('displayPart2');
+
+            fetch(`/kis/getMultiValue?itemCode1=${itemCode1}&itemCode2=${itemCode2}&itemCode3=${itemCode3}`)
+                .then(response => response.json())
+                .then(output => {
+                    console.log(output);
+                    displayPart1.innerHTML = `<pre>${JSON.stringify(output.msg1, null, 2)}</pre>`;
+                    displayPart2.innerHTML = `<pre>${JSON.stringify(output.output1, null, 2)}</pre>`;
+                })
+                .catch(error => console.error("Error loading data:", error));
+        }
+    </script>
+    <style>
+        input, button { padding: 3px; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <input type="text" id="itemCode1" placeholder="종목 코드 1">
+    <input type="text" id="itemCode2" placeholder="종목 코드 2">
+    <input type="text" id="itemCode3" placeholder="종목 코드 3">
+    <button onclick="getStockInfo()">확인</button>
+    <hr>
+    <div id="displayPart1" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+    <div id="displayPart2" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+</body>
+</html>

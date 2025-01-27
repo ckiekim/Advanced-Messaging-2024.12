@@ -28,7 +28,7 @@ import java.util.*;
 public class KisService {
     @Value("${kis.app.key}") private String kisAppKey;
     @Value("${kis.secret.key}") private String kisSecretKey;
-    private static final String realDomainUrl = "https://openapi.koreainvestment.com:9443";
+    public static final String realDomainUrl = "https://openapi.koreainvestment.com:9443";
 
     public Map<String, String> getCurrentPrice(String itemCode, String oAuthToken) {
         RestTemplate restTemplate = new RestTemplate();
@@ -124,7 +124,7 @@ public class KisService {
 
     public String handleOAuthToken(HttpSession session) {
         String oAuthToken = (String) session.getAttribute("OAuthToken");
-        oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjgzYjU5NWM5LTYwYWItNDBjNS04ODBhLThjMzdhZTBlMzYzNSIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczNzc2MTk3NywiaWF0IjoxNzM3Njc1NTc3LCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.7ces81N3vb2XdrES914mruwzTOB2n5SfgNBQm0GNKdxpRv0L4fJ-Zu8akih49HhwTtGG_RHEZbaWgaehOcKKdg";
+        oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImMxYWQzNTI3LTRiMDMtNDk2OS1iNGQ4LWUxODFjOWNkZjkzMiIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczODAyODA5OSwiaWF0IjoxNzM3OTQxNjk5LCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.n-GhD7XQ-CA_luz_ZJww_rytDVg8X7_rDdd29stvmLuNoTUzBz0K50GYb_g5LoisNhikwd8EmO2OwumSDv4zww";
         if (oAuthToken == null || oAuthToken.isEmpty()) {
             oAuthToken = getOAuthToken();
             System.out.println("OAuthToken=" + oAuthToken);
@@ -261,6 +261,46 @@ public class KisService {
             Map<String, Object> output = new LinkedHashMap<>();
             output.put("output1", output1);
             output.put("output2", allTimeData);
+            return output;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Map<String, Object> getMultiValue(String[] itemCodes, String oAuthToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json; charset=utf-8");
+        headers.set("authorization", "Bearer " + oAuthToken);
+        headers.set("appkey", kisAppKey);
+        headers.set("appsecret", kisSecretKey);
+        headers.set("tr_id", "FHKST11300006");
+        headers.set("custtype", "P");
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(headers);
+        String url = realDomainUrl + "/uapi/domestic-stock/v1/quotations/intstock-multprice";
+        for (int i = 1; i <= itemCodes.length; i++) {
+            url += (i == 1 ? "?" : "&") + "FID_COND_MRKT_DIV_CODE_" + i + "=J&FID_INPUT_ISCD_" + i + "=" + itemCodes[i-1];
+        }
+//        System.out.println(url);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+            List<Map<String, String>> output1 = objectMapper.convertValue(jsonNode.get("output"),
+                    new TypeReference<List<Map<String, String>>>() {});
+
+            Map<String, Object> output = new LinkedHashMap<>();
+            output.put("rt_cd", jsonNode.get("rt_cd").asText());
+            output.put("msg_cd", jsonNode.get("msg_cd").asText());
+            output.put("msg1", jsonNode.get("msg1").asText());
+            output.put("output1", output1);
             return output;
         } catch (Exception e) {
             e.printStackTrace();

@@ -96,6 +96,23 @@ public class KisController {
         return ResponseEntity.ok(output);
     }
 
+    @GetMapping("/multi")
+    public String multi() {
+        return "kis/multi";
+    }
+
+    @GetMapping("/getMultiValue")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getMultiValue(
+            @RequestParam String itemCode1, @RequestParam String itemCode2, @RequestParam String itemCode3,
+            HttpSession session
+    ) {
+        String oAuthToken = kisService.handleOAuthToken(session);
+        String[] itemCodes = {itemCode1, itemCode2, itemCode3};
+        Map<String, Object> output = kisService.getMultiValue(itemCodes, oAuthToken);
+        return ResponseEntity.ok(output);
+    }
+
     @GetMapping("/initData")
     public String initData() {
         stockCodeNameService.initData("kosdaq_code.txt");
