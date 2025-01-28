@@ -1,8 +1,10 @@
 package com.lion.ws.controller;
 
 import com.lion.ws.entity.InterestGroup;
+import com.lion.ws.entity.StockCodeName;
 import com.lion.ws.service.InterestGroupService;
 import com.lion.ws.service.KisService;
+import com.lion.ws.service.StockCodeNameService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,28 +12,38 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/interest")
 public class InterestGroupController {
     @Autowired private InterestGroupService interestGroupService;
     @Autowired private KisService kisService;
+    @Autowired private StockCodeNameService stockCodeNameService;
 
     @GetMapping("/multi")
     public String multi(@RequestParam(name="n", defaultValue = "관심그룹") String groupName, HttpSession session, Model model) {
         String owner = (String) session.getAttribute("sessUid");
         List<InterestGroup> list = interestGroupService.findByOwner(owner);
+        if (list == null || list.size() == 0)
+            return "redirect:/interest/insert";
+
         InterestGroup interestGroup = null;
-        for (InterestGroup group: list) {
-            if (group.getName().equals(groupName))
-                interestGroup = group;
+        if (list.size() == 1) {             // 관심그룹이 1개 있으면
+            interestGroup = list.get(0);
+        } else {                            // 관심그룹이 여러개 있으면
+            for (InterestGroup group: list) {
+                if (group.getName().equals(groupName))
+                    interestGroup = group;
+            }
+            if (interestGroup == null)
+                interestGroup = list.get(0);
         }
 
         session.setAttribute("menu", "interest");
+        model.addAttribute("groupId", interestGroup.getId());
         model.addAttribute("codeList", interestGroup.getCodes());
+        model.addAttribute("selectedGroup", interestGroup.getName());
         model.addAttribute("interestGroupList", list);
         return "interest/multi";
     }
@@ -41,6 +53,14 @@ public class InterestGroupController {
         String oAuthToken = kisService.handleOAuthToken(session);
         List<Map<String, String>> output = interestGroupService.getMultiValue(codes, oAuthToken);
         return ResponseEntity.ok(output);
+    }
+
+    @GetMapping("/getStockList")
+    @ResponseBody
+    public ResponseEntity<InterestGroup> getStockList(@RequestParam String groupName, HttpSession session) {
+        String owner = (String) session.getAttribute("sessUid");
+        InterestGroup interestGroup = interestGroupService.findByOwnerAndName(owner, groupName);
+        return ResponseEntity.ok(interestGroup);
     }
 
     @GetMapping("/insert")
@@ -64,6 +84,63 @@ public class InterestGroupController {
                 .build();
         interestGroupService.insertInterestGroup(group);
         return ResponseEntity.ok("등록 성공");
+    }
+
+    @GetMapping("/getInterestGroupList")
+    @ResponseBody
+    public ResponseEntity<List<InterestGroup>> getInterestGroupList(HttpSession session) {
+        String owner = (String) session.getAttribute("sessUid");
+        List<InterestGroup> interestGroupList = interestGroupService.findByOwner(owner);
+        return ResponseEntity.ok(interestGroupList);
+    }
+
+    @GetMapping("/update/{id}")
+    public String updateForm(@PathVariable long id, Model model) {
+        InterestGroup interestGroup = interestGroupService.findById(id);
+        List<Map<String, String>> itemList = new ArrayList<>();
+        for (String code: interestGroup.getCodes()) {
+            Map<String, String> map = new LinkedHashMap<>();
+            StockCodeName stockCodeName = stockCodeNameService.findByCode(code);
+            map.put("code", code);
+            map.put("name", stockCodeName.getName());
+            itemList.add(map);
+        }
+        for (int i = itemList.size(); i < 20; i++) {
+            Map<String, String> map = new LinkedHashMap<>();
+            map.put("code", "");
+            map.put("name", "");
+            itemList.add(map);
+        }
+        List<List<Map<String, String>>> pairedItems = new ArrayList<>();
+        for (int i = 0; i < 20; i += 2) {
+            pairedItems.add(itemList.subList(i, i + 2));
+        }
+        model.addAttribute("groupId", id);
+        model.addAttribute("groupName", interestGroup.getName());
+        model.addAttribute("pairedItems", pairedItems);
+        return "interest/update";
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<String> updateInterestGroupProc(@RequestBody Map<String, Object> interestGroup, HttpSession session) {
+        String owner = (String) session.getAttribute("sessUid");
+        long id = ((Number) interestGroup.get("id")).longValue();
+        String name = (String) interestGroup.get("name");
+        List<String> itemCodes = (List<String>) interestGroup.get("codes");
+        InterestGroup group = InterestGroup.builder()
+                .id(id)
+                .name(name)
+                .owner(owner)
+                .codes(itemCodes)
+                .build();
+        interestGroupService.updateInterestGroup(group);
+        return ResponseEntity.ok("수정 성공");
+    }
+
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable long id) {
+        interestGroupService.deleteInterestGroup(id);
+        return "redirect:/interest/multi";
     }
 
     @GetMapping("/initData")

@@ -3,11 +3,12 @@
 <head>
   <header th:replace="~{fragments/base :: head}"></header>
   <style>
-    th { text-align: center; }
+    th { text-align: right; }
   </style>
   <script src="/js/interest.js"></script>
   <script th:inline="javascript">
     window.onload = () => {
+      document.getElementById('groupName').addEventListener('change', changeGroup);
       const codes = [[${codeList}]];
       getMultiValue(codes);
     }
@@ -24,15 +25,36 @@
 
       <div class="col-9">
         <main>
-          <h3><strong>관심그룹</strong></h3>
+          <table class="table table-sm table-borderless">
+            <tr>
+              <td style="width: 80%; text-align: left">
+                <h3>
+                  <strong>관심그룹</strong>
+                  <span style="font-size: 1rem;">
+                    <a href="#" class="ms-5" onclick="updateGroup()"><i class="fa-solid fa-pen-to-square"></i> 수정</a>
+                    <a href="/interest/insert" class="ms-3"><i class="fa-solid fa-file-arrow-down"></i> 신규</a>
+                    <a href="#" class="ms-3" onclick="deleteGroup()"><i class="fa-solid fa-trash"></i> 삭제</a>
+                  </span>
+                </h3>
+              </td>
+              <td style="width: 20%">
+                <select id="groupName" class="form-control">
+                  <option th:each="group: ${interestGroupList}" th:value="${group.name}" 
+                      th:text="${group.name}" th:selected="${group.name == selectedGroup}">
+                  </option>
+                </select>
+              </td>
+            </tr>
+          </table>
           <hr>
-
+          
+          <input type="hidden" id="groupId" th:value="${groupId}">
           <table class="table table-sm">
             <thead>
               <tr>
-                <th style="width: 6%;">No</th>
-                <th style="width: 10%;">종목코드</th>
-                <th style="width: 16%;">종목명</th>
+                <th style="width: 6%; text-align: center;">No</th>
+                <th style="width: 10%; text-align: center;">종목코드</th>
+                <th style="width: 16%; text-align: center;">종목명</th>
                 <th style="width: 12%;">현재가</th>
                 <th style="width: 11%;">전일대비</th>
                 <th style="width: 11%;">시가</th>
@@ -41,7 +63,7 @@
                 <th style="width: 12%;">거래량</th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody id="tbody"></tbody>
           </table>
           
         </main>

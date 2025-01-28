@@ -29,6 +29,10 @@ public class InterestGroupService {
         return interestGroupRepository.findById(id).orElse(null);
     }
 
+    public InterestGroup findByOwnerAndName(String owner, String name) {
+        return interestGroupRepository.findByOwnerAndName(owner, name);
+    }
+
     public List<InterestGroup> findByOwner(String owner) {
         return interestGroupRepository.findByOwner(owner);
     }

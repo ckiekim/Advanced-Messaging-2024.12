@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface InterestGroupRepository extends JpaRepository<InterestGroup, Long> {
     List<InterestGroup> findByOwner(String owner);
+
+    InterestGroup findByOwnerAndName(String owner, String name);
 }
