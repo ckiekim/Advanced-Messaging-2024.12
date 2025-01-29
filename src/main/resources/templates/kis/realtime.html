@@ -4,6 +4,13 @@
   <header th:replace="~{fragments/base :: head}"></header>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="/js/kisRealtime.js"></script>
+  <script>
+    window.onload = () => {
+      const itemCode = document.getElementById('itemCode').value;
+      if (itemCode)
+        explore();
+    }
+  </script>
   <style>
     th { text-align: center; }
   </style>
@@ -30,7 +37,7 @@
                 <input class="form-control" type="text" id="itemName" onkeypress="handleNameEnterKey(event)" placeholder="종목명">
               </td>
               <td style="width: 20%">
-                <input class="form-control" type="text" id="itemCode" onkeypress="handleCodeEnterKey(event)" placeholder="종목코드">
+                <input class="form-control" type="text" id="itemCode" onkeypress="handleCodeEnterKey(event)" th:value="${itemCode}" placeholder="종목코드">
               </td>
               <td style="width: 8%">
                 <button class="btn btn-outline-primary" onclick="explore()">조회</button>

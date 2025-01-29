@@ -112,7 +112,9 @@ function getMultiValue(codes) {
                 tr.innerHTML = `
                     <td style="text-align: center;">${index + 1}</td>
                     <td style="text-align: center;">${row.inter_shrn_iscd || '-'}</td>
-                    <td style="text-align: center;">${row.inter_kor_isnm || '-'}</td>
+                    <td style="text-align: center;">
+                        <a href="/kis/realtime?itemCode=${row.inter_shrn_iscd}">${row.inter_kor_isnm || '-'}</a>
+                    </td>
                     ${generateTd(previousPrice, Number(row.inter2_prpr), 'font-weight: bold;')}
                     ${generateTd(0, Number(row.inter2_prdy_vrss))}
                     ${generateTd(previousPrice, Number(row.inter2_oprc))}

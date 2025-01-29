@@ -49,7 +49,7 @@ public class KisController {
     }
 
     @GetMapping("/realtime")
-    public String kisReal(HttpSession session, Model model) {
+    public String kisReal(@RequestParam(required = false) String itemCode, HttpSession session, Model model) {
         String kisApprovalKey = (String) session.getAttribute("KIS_APPROVAL_KEY");
         kisApprovalKey = "221ad40f-58aa-4687-b0cd-a380f614026d";
         if (kisApprovalKey == null || kisApprovalKey.isEmpty()) {
@@ -60,6 +60,8 @@ public class KisController {
         }
         session.setAttribute("menu", "kis");
         model.addAttribute("approvalKey", kisApprovalKey);
+//        itemCode = itemCode == null ? "" : itemCode;      // 이렇게 하지 않아도 동작함
+        model.addAttribute("itemCode", itemCode);
         return "kis/realtime";
     }
 
