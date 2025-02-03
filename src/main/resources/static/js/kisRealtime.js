@@ -1,4 +1,5 @@
 let socket, beforeClosingPrice, previousPrice;
+let candleChart, volumeChart;
 
 async function explore() {
     previousPrice = new Map();
@@ -321,6 +322,8 @@ function drawMinuteCandleChart() {
 
 function drawDailyCandleChart() {
     const itemCode = document.getElementById('itemCode').value.trim();
+    const dangerColor = '#dc3545';      // 상승 시 bootstrap danger color
+    const primaryColor = '#0d6efd';     // 하락 시 bootstrap primary color
 
     fetch('/kis/getDailyCandle?itemCode=' + itemCode)
         .then(response => response.json())
@@ -329,27 +332,27 @@ function drawDailyCandleChart() {
                 x: entry.stck_bsop_date, 
                 y: [entry.stck_oprc, entry.stck_hgpr, entry.stck_lwpr, entry.stck_clpr] // [Open, High, Low, Close] 값
             }));
+            const volumeData = output.output2.map(entry => ({
+                x: entry.stck_bsop_date,
+                y: entry.acml_vol,
+                color: Number(entry.stck_clpr) >= Number(entry.stck_oprc) ? dangerColor : primaryColor
+            }));
 
-            const options = {
-                chart: {
-                    type: 'candlestick',
-                    height: '100%', width: '100%'
-                },
-                series: [{
-                    name: 'Dayly prices',
-                    data: candlestickData
-                }],
+            // 기존에 차트가 있으면 삭제
+            if (candleChart) candleChart.destroy();
+            if (volumeChart) volumeChart.destroy();
+
+            const candlestickOptions = {
+                chart: { type: 'candlestick', height: 300, width: '100%', toolbar: { show: false } },
+                series: [
+                    { name: 'Dayly prices', data: candlestickData }
+                ],
                 plotOptions: {
-                    candlestick: {
-                        colors: {
-                            upward: '#dc3545',  // 상승 시 bootstrap danger color
-                            downward: '#0d6efd' // 하락 시 bootstrap primary color
-                        }
-                    }
+                    candlestick: { colors: { upward: dangerColor, downward: primaryColor } }
                 },
-                xaxis: {
-                    labels: { show: false }
-                },
+                xaxis: { type: 'category', labels: { show: false } },
+                yaxis: { labels: { minWidth: 50 } },
+                grid: { padding: { top: -20, bottom: 0 } },
                 tooltip: {
                     shared: false,
                     custom: function({ seriesIndex, dataPointIndex, w }) {
@@ -371,9 +374,38 @@ function drawDailyCandleChart() {
                     }
                 }
             };
-            document.getElementById('candleChart').innerHTML = '';
-            const chart = new ApexCharts(document.getElementById('candleChart'), options);
-            chart.render();
+            const volumeOptions = {
+                chart: { type: 'bar', height: 130, width: '100%', 
+                        toolbar: { show: false }, margin: { top: -30 } },
+                series: [{
+                    name: 'Volume', 
+                    data: volumeData.map(v => ({ x: v.x, y: v.y, fillColor: v.color })) 
+                }],
+                xaxis: { 
+                    type: 'category', 
+                    tickAmount: Math.floor(volumeData.length / 10),
+                    labels: { 
+                        show: true,
+                        formatter: function(value, timestamp, index) {
+                            return value.substring(2);
+                        }
+                    } 
+                },
+                yaxis: { labels: { minWidth: 50 } },
+                dataLabels: { enabled: false },
+                plotOptions: {
+                    bar: { colors: {
+                        ranges: volumeData.map(v => ({ from: v.y, to: v.y, color: v.color }))
+                    } }
+                },
+                grid: { padding: { top: -20 } }
+            }
+
+            candleChart = new ApexCharts(document.getElementById('candleChart'), candlestickOptions);
+            volumeChart = new ApexCharts(document.getElementById('volumeChart'), volumeOptions);
+
+            candleChart.render();
+            volumeChart.render();
         })
         .catch(error => console.error("Error loading data:", error));
 }
