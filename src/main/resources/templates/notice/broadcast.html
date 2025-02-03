@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Broadcast</title>
+    <script>
+        window.onload = () => {
+            const eventSource = new EventSource('http://localhost:8080/notice/broadcast');
+
+            eventSource.onmessage = event => {
+                const noticeElement = document.getElementById('noticeArea');
+                noticeElement.innerText = event.data;
+            };
+
+            eventSource.onerror = event => {
+                console.error("EventSource failed.");
+            }
+        }
+    </script>
+</head>
+<body style="margin: 40px;">
+    <h1>SSE(Server Sent Event) Broadcast</h1>
+    <hr>
+    <div id="noticeArea"></div>
+</body>
+</html>

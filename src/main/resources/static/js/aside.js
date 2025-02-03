@@ -23,3 +23,16 @@ function sendStateMsg() {
         }
     });
 }
+
+function startSSE() {
+    const eventSource = new EventSource('http://localhost:8080/notice/clock');
+    
+    eventSource.onmessage = event => {
+        const noticeElement = document.getElementById('clock');
+        noticeElement.innerText = event.data;
+    };
+    
+    eventSource.onerror = event => {
+        console.error("EventSource failed.");
+    }
+}

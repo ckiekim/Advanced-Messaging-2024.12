@@ -7,6 +7,9 @@
     td { vertical-align: middle; }
   </style>
   <script>
+    window.onload = () => {
+      startSSE();
+    }
     function deleteUser(uid) {
       if (confirm('정말로 삭제하시겠습니까?'))
         location.href = '/user/delete/' + uid;

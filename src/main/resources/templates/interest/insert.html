@@ -6,6 +6,11 @@
     td { text-align: center; }
   </style>
   <script src="/js/interest.js"></script>
+  <script>
+    window.onload = () => {
+      startSSE();
+    }
+  </script>
 </head>
 <body>
   <div th:insert="~{fragments/base :: top}"></div>
