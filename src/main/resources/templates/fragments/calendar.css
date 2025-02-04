@@ -29,21 +29,22 @@ input {
     font-weight: bold;
 }
 
-/* 이전/다음 달 날짜 숨기기 (레이아웃 유지) */
+/* 이전/다음 달 날짜 숨기기 */
 .flatpickr-day.prevMonthDay,
 .flatpickr-day.nextMonthDay {
     visibility: hidden;
 }
 
-/* 달력 크기 및 폰트 최적화 */
+/* 달력 전체 폭 및 간격 최적화 */
 .flatpickr-calendar {
-    width: 230px !important;
+    width: 256px !important;  /* 폭 최적화 */
+    padding: 0;
 }
 
 .flatpickr-month {
-    font-size: 12px;
-    height: 28px;
-    line-height: 28px;
+    font-size: 13px;
+    height: 30px;
+    line-height: 30px;
 }
 
 .flatpickr-current-month {
@@ -52,15 +53,16 @@ input {
 }
 
 .flatpickr-weekdays {
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .flatpickr-day {
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
-    font-size: 11px;
+    width: 31px;
+    height: 31px;
+    line-height: 31px;
+    font-size: 12px;
     margin: 0;
+    padding: 0;
 }
 
 .flatpickr-months .flatpickr-prev-month,
