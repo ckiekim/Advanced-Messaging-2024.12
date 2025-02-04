@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSE Broadcast</title>
+    <title>SSE Unicast</title>
     <script>
         window.onload = () => {
-            const eventSource = new EventSource('http://localhost:8080/notice/broadcast');
+            const uid = document.getElementById('uid').value;
+            if (!uid) {
+                alert('로그인을 먼저 한 후에 사용하세요.');
+                location.href = '/user/login';
+            }
+
+            const eventSource = new EventSource('http://localhost:8080/notice/personal/' + uid);
 
             eventSource.onmessage = event => {
                 const noticeElement = document.getElementById('noticeArea');
@@ -20,8 +26,9 @@
     </script>
 </head>
 <body style="margin: 40px;">
-    <h1>SSE(Server Sent Event) Broadcast</h1>
+    <h1>SSE(Server Sent Event) Unicast</h1>
     <hr>
     <div id="noticeArea"></div>
+    <input type="hidden" id="uid" th:value="${session.sessUid}">
 </body>
 </html>

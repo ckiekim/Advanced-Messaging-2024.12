@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Broadcast/Unicast</title>
+    <script>
+        window.onload = () => {
+            const uid = document.getElementById('uid').value;
+            const broadEventSource = new EventSource('http://localhost:8080/notice/broadcast');
+            const uniEventSource = new EventSource('http://localhost:8080/notice/personal/' + uid);
+
+            broadEventSource.onmessage = event => {
+                document.getElementById('noticeBroadcast').innerText = event.data;
+            };
+
+            broadEventSource.onerror = event => {
+                console.error("BroadEventSource failed.");
+            }
+
+            uniEventSource.onmessage = event => {
+                document.getElementById('noticeUnicast').innerText = event.data;
+            };
+
+            uniEventSource.onerror = event => {
+                console.error("UniEventSource failed.");
+            }
+        }
+    </script>
+</head>
+<body style="margin: 40px;">
+    <h1>SSE(Server Sent Event) Broadcast/Unicast</h1>
+    <hr>
+    <div id="noticeBroadcast"></div>
+    <div id="noticeUnicast"></div>
+    <input type="hidden" id="uid" th:value="${session.sessUid}">
+</body>
+</html>

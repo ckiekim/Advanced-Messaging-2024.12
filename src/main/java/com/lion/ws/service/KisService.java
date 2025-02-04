@@ -124,7 +124,7 @@ public class KisService {
 
     public String handleOAuthToken(HttpSession session) {
         String oAuthToken = (String) session.getAttribute("OAuthToken");
-        oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImE2NjM0OWU2LTRiMjUtNDE4OC05MjhhLTMzNzA0OGVlMjAzNiIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczODYyNzk0MCwiaWF0IjoxNzM4NTQxNTQwLCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.mmZnLKw4PeTxqYcisd3B40taA20Y7JjIbQb7v7kXrnKX5yoOwBsgDigbl-2sruLZ2XKxtnQ0u7_XR1QDAgwlsw";
+        oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImRmOTU2Mjk3LTI5ZGMtNDkyMS1hYjE4LWFiODE4MjhkMjVlYiIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczODcxNDgyMCwiaWF0IjoxNzM4NjI4NDIwLCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.7AHvU3Rhoz-cb1SnkKiecsgdD7yoCk6Sl9jG8EwT_D_LtNmcF6mQbVFtZu1YiskkZKUp0mv3jmqt62c2WUvZ_Q";
         if (oAuthToken == null || oAuthToken.isEmpty()) {
             oAuthToken = getOAuthToken();
             System.out.println("OAuthToken=" + oAuthToken);
