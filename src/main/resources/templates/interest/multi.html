@@ -11,6 +11,7 @@
       document.getElementById('groupName').addEventListener('change', changeGroup);
       const codes = [[${codeList}]];
       getMultiValue(codes);
+      getMultiValueInterval(codes);
       startSSE();
     }
   </script>
@@ -56,11 +57,11 @@
                 <th style="width: 6%; text-align: center;">No</th>
                 <th style="width: 10%; text-align: center;">종목코드</th>
                 <th style="width: 16%; text-align: center;">종목명</th>
-                <th style="width: 12%;">현재가</th>
-                <th style="width: 11%;">전일대비</th>
-                <th style="width: 11%;">시가</th>
-                <th style="width: 11%;">고가</th>
-                <th style="width: 11%;">저가</th>
+                <th style="width: 11%;">현재가</th>
+                <th style="width: 16%; text-align: center;">전일대비</th>
+                <th style="width: 9%;">시가</th>
+                <th style="width: 10%;">고가</th>
+                <th style="width: 10%;">저가</th>
                 <th style="width: 12%;">거래량</th>
               </tr>
             </thead>

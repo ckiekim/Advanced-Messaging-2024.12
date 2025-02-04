@@ -3,7 +3,7 @@ package com.lion.ws.controller;
 import com.lion.ws.entity.InterestGroup;
 import com.lion.ws.entity.StockCodeName;
 import com.lion.ws.service.InterestGroupService;
-import com.lion.ws.service.KisService;
+import com.lion.ws.service.KisOAuthTokenService;
 import com.lion.ws.service.StockCodeNameService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,8 @@ import java.util.*;
 @RequestMapping("/interest")
 public class InterestGroupController {
     @Autowired private InterestGroupService interestGroupService;
-    @Autowired private KisService kisService;
     @Autowired private StockCodeNameService stockCodeNameService;
+    @Autowired private KisOAuthTokenService kisOAuthTokenService;
 
     @GetMapping("/multi")
     public String multi(@RequestParam(name="n", defaultValue = "관심그룹") String groupName, HttpSession session, Model model) {
@@ -49,8 +49,8 @@ public class InterestGroupController {
     }
 
     @PostMapping("/getMultiValue")
-    public ResponseEntity<List<Map<String, String>>> getMultiValue(@RequestBody List<String> codes, HttpSession session) {
-        String oAuthToken = kisService.handleOAuthToken(session);
+    public ResponseEntity<List<Map<String, String>>> getMultiValue(@RequestBody List<String> codes) {
+        String oAuthToken = kisOAuthTokenService.getToken();
         List<Map<String, String>> output = interestGroupService.getMultiValue(codes, oAuthToken);
         return ResponseEntity.ok(output);
     }

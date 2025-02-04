@@ -3,12 +3,7 @@ package com.lion.ws.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lion.ws.repository.StockCodeNameRepository;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -116,48 +109,6 @@ public class KisService {
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             String approvalKey = jsonNode.get("approval_key").asText();
             return approvalKey;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public String handleOAuthToken(HttpSession session) {
-        String oAuthToken = (String) session.getAttribute("OAuthToken");
-        oAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImRmOTU2Mjk3LTI5ZGMtNDkyMS1hYjE4LWFiODE4MjhkMjVlYiIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczODcxNDgyMCwiaWF0IjoxNzM4NjI4NDIwLCJqdGkiOiJQU3hHTFRraXpPanRyRkhiOU16dHROZnZyNm02TmRDT0xtRVgifQ.7AHvU3Rhoz-cb1SnkKiecsgdD7yoCk6Sl9jG8EwT_D_LtNmcF6mQbVFtZu1YiskkZKUp0mv3jmqt62c2WUvZ_Q";
-        if (oAuthToken == null || oAuthToken.isEmpty()) {
-            oAuthToken = getOAuthToken();
-            System.out.println("OAuthToken=" + oAuthToken);
-            session.setAttribute("OAuthToken", oAuthToken);
-            session.setMaxInactiveInterval(24 * 60 * 60);
-        }
-        return oAuthToken;
-    }
-
-    private String getOAuthToken() {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json; charset=utf-8");
-        Map<String, String> body = new HashMap<>();
-        body.put("grant_type", "client_credentials");
-        body.put("appkey", kisAppKey);
-        body.put("appsecret", kisSecretKey);
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
-
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    realDomainUrl + "/oauth2/tokenP",
-                    HttpMethod.POST,
-                    entity,
-                    String.class
-            );
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(response.getBody());
-            String accessToken = jsonNode.get("access_token").asText();
-//            System.out.println("access_token=" + accessToken);
-//            System.out.println("token_type=" + jsonNode.get("token_type").asText());
-//            System.out.println("expires_in=" + jsonNode.get("expires_in").asText());
-            return accessToken;
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -14,14 +14,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class InterestGroupService {
     @Autowired private InterestGroupRepository interestGroupRepository;
-    @Autowired private KisService kisService;
     @Value("${kis.app.key}") private String kisAppKey;
     @Value("${kis.secret.key}") private String kisSecretKey;
 

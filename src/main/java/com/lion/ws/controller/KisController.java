@@ -1,6 +1,7 @@
 package com.lion.ws.controller;
 
 import com.lion.ws.entity.StockCodeName;
+import com.lion.ws.service.KisOAuthTokenService;
 import com.lion.ws.service.KisService;
 import com.lion.ws.service.StockCodeNameService;
 import jakarta.servlet.http.HttpSession;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class KisController {
     @Autowired private KisService kisService;
     @Autowired private StockCodeNameService stockCodeNameService;
+    @Autowired private KisOAuthTokenService kisOAuthTokenService;
 
     @GetMapping("/current")
     public String kisCurrent() {
@@ -29,8 +31,8 @@ public class KisController {
 
     @GetMapping("/getCurrentPrice")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getCurrentPrice(@RequestParam String itemCode, HttpSession session) {
-        String oAuthToken = kisService.handleOAuthToken(session);
+    public ResponseEntity<Map<String, String>> getCurrentPrice(@RequestParam String itemCode) {
+        String oAuthToken = kisOAuthTokenService.getToken();
         Map<String, String> output = kisService.getCurrentPrice(itemCode, oAuthToken);
         return ResponseEntity.ok(output);
     }
@@ -42,8 +44,8 @@ public class KisController {
 
     @GetMapping("/getStockInfo")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getStockInfo(@RequestParam String itemCode, HttpSession session) {
-        String oAuthToken = kisService.handleOAuthToken(session);
+    public ResponseEntity<Map<String, String>> getStockInfo(@RequestParam String itemCode) {
+        String oAuthToken = kisOAuthTokenService.getToken();
         Map<String, String> output = kisService.getStockInfo(itemCode, oAuthToken);
         return ResponseEntity.ok(output);
     }
@@ -79,8 +81,8 @@ public class KisController {
 
     @GetMapping("/getMinuteCandle")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getMinuteCandle(@RequestParam String itemCode, HttpSession session) {
-        String oAuthToken = kisService.handleOAuthToken(session);
+    public ResponseEntity<Map<String, Object>> getMinuteCandle(@RequestParam String itemCode) {
+        String oAuthToken = kisOAuthTokenService.getToken();
         Map<String, Object> output = kisService.getMinuteCandleTillNow(itemCode, oAuthToken);
         return ResponseEntity.ok(output);
     }
@@ -92,8 +94,8 @@ public class KisController {
 
     @GetMapping("/getDailyCandle")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getDailyCandle(@RequestParam String itemCode, HttpSession session) {
-        String oAuthToken = kisService.handleOAuthToken(session);
+    public ResponseEntity<Map<String, Object>> getDailyCandle(@RequestParam String itemCode) {
+        String oAuthToken = kisOAuthTokenService.getToken();
         Map<String, Object> output = kisService.getDailyCandle(itemCode, oAuthToken);
         return ResponseEntity.ok(output);
     }

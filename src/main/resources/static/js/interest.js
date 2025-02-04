@@ -1,3 +1,5 @@
+let si;
+
 function handleEnterKey(event, num) {
     if (event.key === 'Enter') {
         event.preventDefault();     // 줄바꿈 방지(기본 엔터 키 동작 방지)
@@ -95,6 +97,12 @@ async function checkGroupName(groupName, groupId = 0) {
     }
 }
 
+function getMultiValueInterval(codes) {
+    si = setInterval(() => {
+        getMultiValue(codes);
+    }, 3000);
+}
+
 function getMultiValue(codes) {
     const tbody = document.getElementById('tbody');
     fetch('/interest/getMultiValue', {
@@ -116,7 +124,7 @@ function getMultiValue(codes) {
                         <a href="/kis/realtime?itemCode=${row.inter_shrn_iscd}">${row.inter_kor_isnm || '-'}</a>
                     </td>
                     ${generateTd(previousPrice, Number(row.inter2_prpr), 'font-weight: bold;')}
-                    ${generateTd(0, Number(row.inter2_prdy_vrss))}
+                    ${generateTd2(Number(row.inter2_prdy_vrss), row.prdy_ctrt)}
                     ${generateTd(previousPrice, Number(row.inter2_oprc))}
                     ${generateTd(previousPrice, Number(row.inter2_hgpr))}
                     ${generateTd(previousPrice, Number(row.inter2_lwpr))}
@@ -137,10 +145,19 @@ function generateTd(prevPrice, dispPrice, style = '') {
     return `<td style="text-align: right; ${style}" ${color}>${dispPrice.toLocaleString()}</td>`;
 }
 
+function generateTd2(dispPrice, rate) {
+    const color = dispPrice > 0 ? 'class="text-danger"' :
+                    dispPrice < 0 ?  'class="text-primary"' : '';
+    return `<td style="text-align: center;" ${color}>${dispPrice.toLocaleString()} (${dispPrice > 0 ? '+' : ''}${rate}%)</td>`;
+}
+
 async function changeGroup() {
     const selectedValue = this.value;
     const codes = await getGroupCode(selectedValue);
+    if (si)
+        clearInterval(si);
     getMultiValue(codes);
+    getMultiValueInterval(codes);
 }
 
 async function getGroupCode(selectedValue) {
