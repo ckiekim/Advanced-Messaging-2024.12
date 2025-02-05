@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE JSON Example</title>
+    <script>
+        window.onload = () => {
+            const eventSource = new EventSource('/notice/dice-game');
+
+            eventSource.onmessage = event => {
+                const data = JSON.parse(event.data);
+
+                const eventElement = document.createElement('li');
+                eventElement.textContent = `ID: ${data.id}, Message: ${data.message}, Dice: ${data.dice}, Timestamp: ${new Date(data.timestamp).toLocaleString()}`;
+                document.getElementById("events").appendChild(eventElement);
+            };
+
+            eventSource.onerror = () => {
+                console.error("SSE connection error.");
+            }
+        }
+    </script>
+</head>
+<body style="margin: 40px;">
+    <h1>Server-Sent Events (JSON Data)</h1>
+    <ul id="events"></ul>
+</body>
+</html>
