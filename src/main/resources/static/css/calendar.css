@@ -1,0 +1,12 @@
+
+/* 일요일을 빨간색으로 표시 */
+.flatpickr-day.sunday {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* 이전/다음 달 날짜 숨기기 (레이아웃 유지) */
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    visibility: hidden;  /* 공간은 유지하지만 보이지 않게 함 */
+}

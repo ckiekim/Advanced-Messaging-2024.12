@@ -36,3 +36,23 @@ function startSSE() {
         console.error("EventSource failed.");
     }
 }
+
+function openFlatpickr() {
+    flatpickr("#date-picker", {
+        dateFormat: "Y년 m월 d일",
+        defaultDate: "today",
+        locale: "ko",
+        disableMobile: true,
+        showMonths: 1,
+        onReady: function (selectedDates, dateStr, instance) {
+            instance.open();  // 페이지 로드 시 자동으로 달력 열기
+        },
+        onDayCreate: function (dObj, dStr, fp, dayElem) {
+            const date = new Date(dayElem.dateObj);
+            const dayOfWeek = date.getDay();
+            if (dayOfWeek === 0) {
+                dayElem.classList.add("sunday");
+            }
+        }
+    });
+}
