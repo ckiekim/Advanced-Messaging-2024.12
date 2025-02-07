@@ -1,6 +1,7 @@
 package com.lion.ws.controller;
 
 import com.lion.ws.entity.StockCodeName;
+import com.lion.ws.service.CrawlService;
 import com.lion.ws.service.KisOAuthTokenService;
 import com.lion.ws.service.KisService;
 import com.lion.ws.service.StockCodeNameService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,31 @@ public class KisController {
     @Autowired private KisService kisService;
     @Autowired private StockCodeNameService stockCodeNameService;
     @Autowired private KisOAuthTokenService kisOAuthTokenService;
+    @Autowired private CrawlService crawlService;
+
+    @GetMapping("/index")
+    public String index(HttpSession session) {
+        session.setAttribute("menu", "index");
+        return "kis/index";
+    }
+
+    @GetMapping("/getStockIndex")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, String>>> getStockIndex() {
+        String oAuthToken = kisOAuthTokenService.getToken();
+        List<Map<String, String>> stockIndexList = new ArrayList<>();
+        stockIndexList.add(kisService.getStockIndex("0001", oAuthToken));   // KOSPI
+        stockIndexList.add(kisService.getStockIndex("1001", oAuthToken));   // KOSDAQ
+        stockIndexList.add(kisService.getStockIndex("2001", oAuthToken));   // KOSPI200
+        return ResponseEntity.ok(stockIndexList);
+    }
+
+    @GetMapping("/getFinanceInfo")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getFinanceInfo() {
+        Map<String, Object> financeInfo = crawlService.getNaverFinanceInfo();
+        return ResponseEntity.ok(financeInfo);
+    }
 
     @GetMapping("/current")
     public String kisCurrent() {

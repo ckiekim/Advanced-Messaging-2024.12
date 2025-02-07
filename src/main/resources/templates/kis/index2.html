@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국투자증권 Open API</title>
+    <script>
+        function getStockIndex() {
+            // const indexCode = document.getElementById('indexCode').value;
+            const displayPart1 = document.getElementById('displayPart1');
+            const displayPart2 = document.getElementById('displayPart2');
+            const displayPart3 = document.getElementById('displayPart3');
+            const displayPart4 = document.getElementById('displayPart4');
+            const displayPart5 = document.getElementById('displayPart5');
+
+            fetch('/kis/getStockIndex')
+                .then(response => response.json())
+                .then(output => {
+                    displayPart1.innerHTML = `<pre>${JSON.stringify(output[0], null, 2)}</pre>`;
+                    displayPart2.innerHTML = `<pre>${JSON.stringify(output[1], null, 2)}</pre>`;
+                    displayPart3.innerHTML = `<pre>${JSON.stringify(output[2], null, 2)}</pre>`;
+                })
+                .catch(error => console.error("Error loading data:", error));
+
+            fetch('/kis/getFinanceInfo')
+                .then(response => response.json())
+                .then(output => {
+                    displayPart4.innerHTML = `<pre>${JSON.stringify(output.overseas, null, 2)}</pre>`;
+                    displayPart5.innerHTML = `<pre>${JSON.stringify(output.popular, null, 2)}</pre>`;
+                })
+                .catch(error => console.error("Error loading data:", error));
+
+        }
+    </script>
+    <style>
+        input, button, select { padding: 3px; }
+    </style>
+</head>
+<body style="margin: 40px;">
+    <select id="indexCode">
+        <option value="0001" selected>KOSPI</option>
+        <option value="1001">KOSDAQ</option>
+        <option value="2001">KOSPI200</option>
+    </select>
+    <button onclick="getStockIndex()">확인</button>
+    <hr>
+    <div id="displayPart1" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+    <div id="displayPart2" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+    <div id="displayPart3" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+    <div id="displayPart4" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+    <div id="displayPart5" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+</body>
+</html>

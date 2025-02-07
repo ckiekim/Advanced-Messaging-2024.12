@@ -131,7 +131,7 @@ function getMultiValue(codes) {
                     <td style="text-align: right;">${Number(row.acml_vol).toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
-            })
+            });
         })
         .catch((error) => {
             console.error("에러 발생:", error);
