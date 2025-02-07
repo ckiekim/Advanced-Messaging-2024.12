@@ -4,12 +4,17 @@
   <header th:replace="~{fragments/base :: head}"></header>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="/js/kisRealtime.js"></script>
+  <script src="/js/stockIndex.js"></script>
   <script>
     window.onload = () => {
       const itemCode = document.getElementById('itemCode').value;
       if (itemCode)
         explore();
       startSSE();
+      getStockIndex();
+      setInterval(() => {
+        getStockIndex();
+      }, 3000);
     }
   </script>
   <style>
@@ -168,6 +173,36 @@
             <div class="col-6">
               <div id="candleChart" style="margin-bottom: -30px;"></div>
               <div id="volumeChart"></div>
+            </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="col-4">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">코스피</h4>
+                  <div id="v0" class="text-center"><span style="font-size: 18px; font-weight: bold;" id="value0"></span></div>
+                  <div id="c0" class="text-end"><span id="change0"></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">코스닥</h4>
+                  <div id="v1" class="text-center"><span style="font-size: 18px; font-weight: bold;" id="value1"></span></div>
+                  <div id="c1" class="text-end"><span id="change1"></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">코스피200</h4>
+                  <div id="v2" class="text-center"><span style="font-size: 18px; font-weight: bold;" id="value2"></span></div>
+                  <div id="c2" class="text-end"><span id="change2"></span></div>
+                </div>
+              </div>
             </div>
           </div>
         </main>

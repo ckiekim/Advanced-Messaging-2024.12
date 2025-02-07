@@ -8,9 +8,10 @@
     window.onload = () => {
       getStockIndex();
       getFinanceInfo();
+      startSSE();
       setInterval(() => {
         getStockIndex();
-      }, 3000)
+      }, 3000);
     }
   </script>
   <style>
