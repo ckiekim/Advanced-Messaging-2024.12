@@ -129,8 +129,11 @@ public class KisController {
 
     @GetMapping("/initData")
     public String initData() {
-        stockCodeNameService.initData("kosdaq_code.txt");
-        stockCodeNameService.initData("kospi_code.txt");
-        return "redirect:/kis/realtime";
+        List<StockCodeName> list = stockCodeNameService.findByNameContaining("삼성전자");
+        if (list == null || list.isEmpty()) {
+            stockCodeNameService.initData("kosdaq_code.txt");
+            stockCodeNameService.initData("kospi_code.txt");
+        }
+        return "redirect:/kis/index";
     }
 }

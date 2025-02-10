@@ -12,14 +12,8 @@
 
 ### AWS에서 실행하는 방법
 <pre>
-# image 확인
-docker image ls
-
-# 기존 image 삭제
-docker rmi ckiekim/ws-app
-
 # build 및 이미지 생성
-mvn clean install
+mvn clean package
 docker build -t ckiekim/ws-app .
 
 # 이미지 push & pull
@@ -33,14 +27,14 @@ docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 \
   -e RABBITMQ_DEFAULT_USER=guest -e RABBITMQ_DEFAULT_PASS=guest rabbitmq:management
 docker exec -it rabbitmq rabbitmq-plugins enable rabbitmq_web_stomp
 
-# 컨테이너 실행
+# ws-app 실행
 docker rm ws-app
 docker run -d --name ws-app -e SPRING_PROFILES_ACTIVE=prod -p 8080:8080 ckiekim/ws-app
 
 # 두 컨테이너를 동일한 네트워크에 연결
-docker network create rabbitmq-net
-docker network connect rabbitmq-net rabbitmq
-docker network connect rabbitmq-net ws-app
+docker network create ws-network
+docker network connect ws-network rabbitmq
+docker network connect ws-network ws-app
 
 # 사용자 등록 및 종목 등록
 http://43.203.66.227:8080/user/register
