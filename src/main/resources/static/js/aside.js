@@ -25,7 +25,9 @@ function sendStateMsg() {
 }
 
 function startSSE() {
-    const eventSource = new EventSource('http://localhost:8080/notice/clock');
+    const serverIp = $('#serverIp').val();
+    const serverPort = $('#serverPort').val();
+    const eventSource = new EventSource(`http://${serverIp}:${serverPort}/notice/clock`);
     
     eventSource.onmessage = event => {
         const noticeElement = document.getElementById('clock');

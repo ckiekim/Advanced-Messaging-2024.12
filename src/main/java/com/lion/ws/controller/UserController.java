@@ -5,6 +5,7 @@ import com.lion.ws.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,8 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
     @Autowired private UserService userService;
+    @Value("${server.port}") private String serverPort;
+    @Value("${server.ip}") private String serverIp;
 
     @GetMapping("/list")
     public String list(HttpSession session, Model model) {
@@ -89,6 +92,8 @@ public class UserController {
             User user = userService.findByUid(uid);
             session.setAttribute("sessUid", uid);
             session.setAttribute("sessUname", user.getUname());
+            session.setAttribute("serverPort", serverPort);
+            session.setAttribute("serverIp", serverIp);
             session.setMaxInactiveInterval(4 * 60 * 60);        // 세션 타임아웃 시간: 4시간
             msg = user.getUname() + "님 환영합니다.";
             url = "/kis/index";

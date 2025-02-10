@@ -7,6 +7,7 @@ function connect() {
     const roomIds = roomListStr.split(',');
     const serverIp = $('#serverIp').val();
     const serverPort = $('#serverPort').val();
+    console.log(`serverIp=${serverIp}, serverPort=${serverPort}`);
     socket = new SockJS(`http://${serverIp}:${serverPort}/ws`);
     stompClient = Stomp.over(socket);
     stompClient.connect({}, frame => {
