@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +34,9 @@ public class KisOAuthTokenService {
         }
         KisOAuthToken kisOAuthToken = tokenList.get(0);
         LocalDateTime now = LocalDateTime.now();
-        // OAuthToken을 발급받은지 6시간 이후이고, 날짜가 1일 더 많으면 신규로 발급 받음
+        // OAuthToken을 발급받은지 6시간 이후이고, 날짜가 1일 이상 더 많으면 신규로 발급 받음
         if (now.isAfter(kisOAuthToken.getTimestamp().plusHours(6)) &&
-            now.toLocalDate().isEqual(kisOAuthToken.getTimestamp().toLocalDate().plusDays(1))) {
+            Math.abs(ChronoUnit.DAYS.between(now.toLocalDate(), kisOAuthToken.getTimestamp().toLocalDate())) >= 1) {
             kisOAuthTokenRepository.deleteById(kisOAuthToken.getId());
             oAuthToken = saveAndGetOAuthToken();
             return oAuthToken;
